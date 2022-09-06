@@ -1,0 +1,17 @@
+node_modules
+.npm
+.pnp.*
+.yarn/build-state.yml
+.yarn/install-state.gz
+.yarn/cache
+!.yarn/patches
+!.yarn/releases
+!.yarn/plugins
+!.yarn/sdks
+!.yarn/versions
+
+.idea
+dist
+front-end
+info
+back-end/src/connect.ts
