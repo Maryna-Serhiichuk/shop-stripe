@@ -1,8 +1,8 @@
 import express, {Response} from 'express'
 import { client } from './client'
 import { ObjectId } from 'mongodb'
-import {RequestWithBody, RequestWithParams, RequestWithQuery} from "./types/requestTypes";
-import {CreateBook, QueryBook} from "./types/Book";
+import {RequestWithBody, RequestWithParams, RequestWithParamsAndBody, RequestWithQuery} from "./types/requestTypes";
+import {CreateBook, QueryBook, UpdateBook} from "./types/Book";
 
 const app = express()
 
@@ -20,7 +20,9 @@ const HTTP_STATUSES = {
     NOT_CONTENT_204: 204,
 
     BAD_REQUEST_400: 400,
-    NOT_FOUND_404: 404
+    NOT_FOUND_404: 404,
+
+	SERVER_500: 500
 }
 
 app.route('/books')
@@ -37,18 +39,53 @@ app.route('/books')
 		}
 
 		await client.connect()
-		const result = await client.db().collection('books').insertOne(req.body)
-		console.log(result)
-		res.sendStatus(HTTP_STATUSES.CREATED_201)
+		const books = client.db().collection('books')
+		const result = await books.insertOne(req.body)
+		if(result.acknowledged){
+			// const book = await books.findOne({_id: result.insertedId})
+			res.sendStatus(HTTP_STATUSES.CREATED_201)
+			return
+		}
+		res.sendStatus(HTTP_STATUSES.SERVER_500)
 	})
 
-app.get('/books/:id', async (req: RequestWithParams<{id: string}>, res: Response<QueryBook>) => {
-	const id = req.params.id
-	await client.connect()
-	const books = await client.db().collection('books')
-	const book: QueryBook = await books.findOne({_id: new ObjectId(id)})
-	res.json(book)
-})
+app.route('/books/:id')
+	.get(async (req: RequestWithParams<{id: string}>, res: Response<QueryBook>) => {
+		const id = req.params.id
+		await client.connect()
+		const books = await client.db().collection('books')
+		const book: QueryBook = await books.findOne({_id: new ObjectId(id)})
+		res.sendStatus(HTTP_STATUSES.OK_200).json(book)
+	})
+	.delete(async (req: RequestWithParams<{id: string}>, res: Response<QueryBook>) => {
+		const id = req.params.id
+		await client.connect()
+		const books = await client.db().collection('books')
+		await books.deleteOne({_id: new ObjectId(id)}) // const book: QueryBook =
+		res.sendStatus(HTTP_STATUSES.OK_200)
+	})
+	.put(urlencodedParser, async (req: RequestWithParamsAndBody<{id: string}, UpdateBook>, res: Response<QueryBook>) => {
+		const id = req.params.id
+		if(req.body.author || req.body.year || req.body.name){
+			// || req.body.price
+			await client.connect()
+			const books = client.db().collection('books')
+			const result = await books.updateOne(
+				{_id: new ObjectId(id)},
+				{$set: {...req.body}}
+			)
+			if(result.acknowledged){
+				// const book = await books.findOne({_id: new ObjectId(id)})
+				res.sendStatus(HTTP_STATUSES.OK_200)
+				return
+			}
+			res.sendStatus(HTTP_STATUSES.SERVER_500)
+			return
+		}
+
+		res.sendStatus(HTTP_STATUSES.BAD_REQUEST_400)
+		return
+	})
 
 app.listen(port, () => {
     console.log(`listen port ${port}`)
