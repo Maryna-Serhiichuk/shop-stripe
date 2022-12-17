@@ -5,7 +5,7 @@ enum BookGenres {
     adventure,
     science,
     romantic,
-    fantastic
+    fantasy
 }
 
 export type Book = {
