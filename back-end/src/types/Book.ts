@@ -27,7 +27,6 @@ export type CreateBook = {
     description: string
     price: number
     genres: string
-    created: string
 }
 
 export type UpdateBook = {
@@ -40,13 +39,11 @@ export type UpdateBook = {
 }
 
 export type QueryBook = {
-    id: string
     name: string
     author: string
     year: number
     description: string
     price: number
     genres: string
-    created: string
 }
 

@@ -1,4 +1,4 @@
-import { client } from "./connect"
+import { client } from "./client"
 
 const start = async () => {
 	try {

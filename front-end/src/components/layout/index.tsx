@@ -1,6 +1,6 @@
-import { FC } from 'react'
+import { FC, Suspense } from 'react'
 import { Col, Row } from 'antd'
-import { Outlet } from 'react-router-dom'
+import {NavLink, Outlet} from 'react-router-dom'
 import { Container } from '../sections/Container'
 import { Section } from '../sections/Section'
 
@@ -9,7 +9,9 @@ export const Layout: FC = () => {
         <Col>
             <Header/>
             <Row>
-                <Outlet />
+                <Suspense fallback={null}>
+                    <Outlet />
+                </Suspense>
             </Row>
             <Footer/>
         </Col>
@@ -21,7 +23,7 @@ const Header: FC = () => {
         <Container>
             <Row justify={'space-between'} align={'middle'} style={{height: 100}}>
                 <Col>
-                    LOGO
+                    <NavLink to={'/'}>LOGO</NavLink>
                 </Col>
                 <Col>
                     <PersonalPhoto/>

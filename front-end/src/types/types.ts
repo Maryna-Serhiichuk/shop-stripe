@@ -1,19 +1,20 @@
-// enum BookGenres {
-//     biographical,
-//     detective,
-//     historical,
-//     adventure,
-//     science,
-//     romantic,
-//     fantastic,
-//     fantasy
-// }
+export enum BookGenres {
+    biographical,
+    detective,
+    historical,
+    adventure,
+    science,
+    romantic,
+    fantastic,
+    fantasy
+}
 
 // enum MagazineGenres {
 //     sport,
 //     science,
 //     news
 // }
+export const bookGenres: BookGenre[] = ['biographical','detective','historical','adventure','science','romantic','fantastic','fantasy']
 
 type BookGenre = 
     'biographical' | 
@@ -28,7 +29,7 @@ type BookGenre =
 type MagazineGenre = 'sport' | 'science' | 'news'
 
 export type Book = {
-    id: string
+    _id: string
     name: string
     author: string
     year: number

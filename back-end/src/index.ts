@@ -1,8 +1,12 @@
 import express, {Response} from 'express'
 import { client } from './client'
+import { url } from './connect'
 import { ObjectId } from 'mongodb'
+import mongoose from 'mongoose'
 import {RequestWithBody, RequestWithParams, RequestWithParamsAndBody, RequestWithQuery} from "./types/requestTypes";
 import {CreateBook, QueryBook, UpdateBook} from "./types/Book";
+import { Book } from './models/book'
+import cors from 'cors'
 
 const app = express()
 
@@ -11,6 +15,7 @@ const urlencodedParser = bodyParser.urlencoded({extended:true});
 
 const jsonBodyMiddleware = express.json()
 app.use(jsonBodyMiddleware)
+app.use(cors({ origin: '*' }))
 
 const port = 3030
 
@@ -27,35 +32,31 @@ const HTTP_STATUSES = {
 
 app.route('/books')
 	.get(async (req: RequestWithQuery<QueryBook>, res: Response<QueryBook[]>)  => {
-		await client.connect()
-		const books: QueryBook[] = await client.db().collection('books').find({}).limit(10).toArray()
+		const books: QueryBook[] = await Book.find()
 		res.json(books)
 	})
 	.post(urlencodedParser, async (req: RequestWithBody<CreateBook>, res: Response<QueryBook>) => {
-		if(!req.body.author || !req.body.year || !req.body.name){
-			// || !req.body.price
+		const { name, year, author, description, genres, price } = req.body
+		if(!author || !year || !name || !description || !genres || !price){
 			res.sendStatus(HTTP_STATUSES.BAD_REQUEST_400)
 			return
 		}
 
-		await client.connect()
-		const books = client.db().collection('books')
-		const result = await books.insertOne(req.body)
-		if(result.acknowledged){
-			// const book = await books.findOne({_id: result.insertedId})
-			res.sendStatus(HTTP_STATUSES.CREATED_201)
-			return
-		}
-		res.sendStatus(HTTP_STATUSES.SERVER_500)
+		const book = new Book({ name, year, author, description, genres, price })
+		book.save()
+			.then(_ => res.sendStatus(HTTP_STATUSES.CREATED_201))
+			.catch(err => res.sendStatus(HTTP_STATUSES.SERVER_500))
 	})
 
-app.route('/books/:id')
+app.route('/book/:id')
 	.get(async (req: RequestWithParams<{id: string}>, res: Response<QueryBook>) => {
 		const id = req.params.id
-		await client.connect()
-		const books = await client.db().collection('books')
-		const book: QueryBook = await books.findOne({_id: new ObjectId(id)})
-		res.sendStatus(HTTP_STATUSES.OK_200).json(book)
+		const instance: QueryBook | null = await Book.findById(id)
+		if(instance) {
+			res.json(instance)
+			return
+		}
+		res.sendStatus(HTTP_STATUSES.BAD_REQUEST_400)
 	})
 	.delete(async (req: RequestWithParams<{id: string}>, res: Response<QueryBook>) => {
 		const id = req.params.id
@@ -86,6 +87,11 @@ app.route('/books/:id')
 		res.sendStatus(HTTP_STATUSES.BAD_REQUEST_400)
 		return
 	})
+
+mongoose
+	.connect(url)
+	.then(res => console.log('Connect to mongoose'))
+	.catch(err => console.log('mongoose error', err))
 
 app.listen(port, () => {
     console.log(`listen port ${port}`)
