@@ -2,25 +2,28 @@ import {Row, Segmented, List as ListAnt, Col, Card, Typography, Button, Form, In
 import { AppstoreOutlined, BarsOutlined, ShoppingCartOutlined } from '@ant-design/icons'
 import {FC, useEffect, useState} from "react"
 import { Book } from "../../types/types"
-import { NavLink } from "react-router-dom"
+import {NavLink, useSearchParams} from "react-router-dom"
 import { instance as axios} from "../../request/axios"
-import { SearchOutlined } from '@ant-design/icons';
+import { SearchOutlined, SortAscendingOutlined, SortDescendingOutlined, HistoryOutlined } from '@ant-design/icons';
 
 type SegmentType = 'horizontal'|'vertical'
 
 const List: FC = () => {
     const [segment, setSegment] = useState<SegmentType>('vertical')
     const [books, setBooks] = useState<Book[]>([])
-    const [reqQuery, setReqQuery] = useState('')
+    const [reqQuery, setReqQuery] = useState<{ [key: string]: string }>({
+        search: '',
+        sort: 'newer'
+    })
 
     useEffect(() => {
-        axios.get(`books${reqQuery}`)
+        axios.get(`books?${Object.keys(reqQuery).map(key => `${key}=${reqQuery[key]}`).join('&')}`)
             .then(res => setBooks(res.data))
             .catch(err => console.log(err))
     }, [reqQuery])
 
     const filter = (value: {value: string}) => {
-        setReqQuery(value.value ? `?search=${value.value}` : '')
+        setReqQuery(prev => ({...prev, search: value.value}))
     }
 
     return (
@@ -36,19 +39,40 @@ const List: FC = () => {
                                 <Button htmlType={'submit'} type="primary" icon={<SearchOutlined />}/>
                             </Form.Item>
                         </Form>
-                        <Segmented
-                            onChange={e => setSegment(e as SegmentType)}
-                            options={[
-                                {
-                                    value: 'horizontal',
-                                    icon: <BarsOutlined />,
-                                },
-                                {
-                                    value: 'vertical',
-                                    icon: <AppstoreOutlined />,
-                                },
-                            ]}
-                        />
+                        <Col>
+                            <Space size={20}>
+                                <Segmented
+                                    onChange={e => setReqQuery(prev => ({...prev, sort: e as string}))}
+                                    options={[
+                                        {
+                                            value: 'newer',
+                                            icon: <HistoryOutlined />,
+                                        },
+                                        {
+                                            value: 'cheaper',
+                                            icon: <SortAscendingOutlined />,
+                                        },
+                                        {
+                                            value: 'expensive',
+                                            icon: <SortDescendingOutlined />,
+                                        },
+                                    ]}
+                                />
+                                <Segmented
+                                    onChange={e => setSegment(e as SegmentType)}
+                                    options={[
+                                        {
+                                            value: 'horizontal',
+                                            icon: <BarsOutlined />,
+                                        },
+                                        {
+                                            value: 'vertical',
+                                            icon: <AppstoreOutlined />,
+                                        },
+                                    ]}
+                                />
+                            </Space>
+                        </Col>
                     </Row>
                     <Row>
                         <Col span={24}>

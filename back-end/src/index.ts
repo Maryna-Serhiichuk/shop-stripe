@@ -33,7 +33,8 @@ const HTTP_STATUSES = {
 app.route('/books')
 	.get(async (req: RequestWithParams<QueryBook>, res: Response<QueryBook[]>)  => {
 		const query = req.query?.search ?? ''
-		const books: QueryBook[] = await Book.find({$or: [{name: {$regex: query}}, {author: {$regex: query}}, {author: {$regex: query}}, {genres: {$regex: query}}, {description: {$regex: query}}]})
+		const sort = req.query?.sort ?? ''
+		const books: QueryBook[] = await Book.find({$or: [{name: {$regex: query}}, {author: {$regex: query}}, {author: {$regex: query}}, {genres: {$regex: query}}, {description: {$regex: query}}]} )
 		res.json(books)
 	})
 	.post(urlencodedParser, async (req: RequestWithBody<CreateBook>, res: Response<QueryBook>) => {

@@ -35,7 +35,7 @@ export type Book = {
     year: number
     description: string
     image: string
-    price: number
+    price: string
     genres: BookGenre[]
     created: string
 }
