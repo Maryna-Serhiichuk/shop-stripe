@@ -1,6 +1,6 @@
 import { Button, Col, Row, Typography, Space } from "antd";
 import {FC, useEffect, useState} from "react";
-import { useParams } from "react-router-dom";
+import {useParams} from "react-router-dom";
 import { Section } from "../../components/sections/Section";
 import { Book } from "../../types/types";
 import { instance as axios } from "../../request/axios";
@@ -14,6 +14,12 @@ const Order: FC = () => {
             .then(res => setBook(res.data))
             .catch(err => console.log(err))
     }, [])
+
+    const byOrder = () => {
+        axios.post('by-book', ({id: id}))
+            .then(res => window.location.replace(res?.data?.checkoutUrl))
+            .catch(err => console.log('err', err))
+    }
 
     return (
         <Section>
@@ -51,7 +57,7 @@ const Order: FC = () => {
                         </Typography.Title>
                     </Col>
                     <Col>
-                        <Button type={'primary'} size={'large'}>
+                        <Button onClick={byOrder} type={'primary'} size={'large'}>
                             BY
                         </Button>
                     </Col>

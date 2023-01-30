@@ -1,12 +1,14 @@
 import express, {Response} from 'express'
 import { client } from './client'
-import { url } from './connect'
+import {stripeKey, url} from './connect'
 import { ObjectId } from 'mongodb'
 import mongoose from 'mongoose'
 import {RequestWithBody, RequestWithParams, RequestWithParamsAndBody, RequestWithQuery} from "./types/requestTypes";
 import {CreateBook, QueryBook, UpdateBook} from "./types/Book";
 import { Book } from './models/book'
 import cors from 'cors'
+
+const stripe = require('stripe')(stripeKey)
 
 const app = express()
 
@@ -44,7 +46,15 @@ app.route('/books')
 			return
 		}
 
-		const book = new Book({ name, year, author, description, genres, price })
+		const product = await stripe.products.create({
+			name: name,
+			default_price_data: {
+				currency: 'usd',
+				unit_amount: price * 100
+			},
+		})
+
+		const book = new Book({ name, year, author, description, genres, price, stripeId: product.id })
 		book.save()
 			.then(_ => res.sendStatus(HTTP_STATUSES.CREATED_201))
 			.catch(err => res.sendStatus(HTTP_STATUSES.SERVER_500))
@@ -69,7 +79,8 @@ app.route('/book/:id')
 	})
 	.put(urlencodedParser, async (req: RequestWithParamsAndBody<{id: string}, UpdateBook>, res: Response<QueryBook>) => {
 		const id = req.params.id
-		if(req.body.author || req.body.year || req.body.name){
+		const { author, year, name } = req.body
+		if(author || year || name){
 			// || req.body.price
 			await client.connect()
 			const books = client.db().collection('books')
@@ -88,6 +99,36 @@ app.route('/book/:id')
 
 		res.sendStatus(HTTP_STATUSES.BAD_REQUEST_400)
 		return
+	})
+
+app.route('/by-book')
+	.post(urlencodedParser, async (req: RequestWithBody<{id: string}>, res:Response<{checkoutUrl: string}>) => {
+		const { id } = req.body
+
+		const instance: QueryBook | null = await Book.findById(id)
+		if(!instance || !instance?.stripeId) {
+			res.sendStatus(HTTP_STATUSES.SERVER_500)
+			return
+		}
+		const stripeId = instance.stripeId
+		const product = await stripe.products.retrieve(stripeId)
+		if(!product){
+			res.sendStatus(HTTP_STATUSES.SERVER_500)
+			return
+		}
+		const priceId = product.default_price
+
+		const session = await stripe.checkout.sessions.create({
+			success_url: 'https://example.com/success',
+			cancel_url: 'https://google.com',
+			line_items: [
+				{price: priceId, quantity: 1},
+			],
+			mode: 'payment',
+		})
+
+		res.send({checkoutUrl: session.url})
+		// res.sendStatus(HTTP_STATUSES.CREATED_201)
 	})
 
 mongoose

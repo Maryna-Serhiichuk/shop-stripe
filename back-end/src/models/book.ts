@@ -8,6 +8,7 @@ const bookSchema = new Schema({
     price: {type: String, required: true},
     description: {type: String, required: true},
     genres: {type: String, required: true},
+    stripeId: {type: String, required: true}
 }, { timestamps: true })
 
 export const Book = mongoose.model('Book', bookSchema)

@@ -18,6 +18,7 @@ export type Book = {
     price: number
     genres: BookGenres[]
     created: string
+    stripeId: string
 }
 
 export type CreateBook = {
@@ -27,6 +28,7 @@ export type CreateBook = {
     description: string
     price: number
     genres: string
+    stripeId: string
 }
 
 export type UpdateBook = {
@@ -45,5 +47,6 @@ export type QueryBook = {
     description: string
     price: number
     genres: string
+    stripeId: string
 }
 

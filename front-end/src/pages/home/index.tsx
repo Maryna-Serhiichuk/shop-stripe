@@ -6,7 +6,6 @@ import magazine from './../../components/img/03.png'
 import book from './../../components/img/04.png'
 
 const Home: FC = () => {
-    window.addEventListener('scroll', () => console.log(window.scrollY))
     return (
         <>
             <Section>

@@ -4,6 +4,8 @@ import { bookGenres, BookGenres } from "../../types/types"
 import { instance as axios } from "../../request/axios";
 
 const AddOrderForm: FC = () => {
+	const separator = ', '
+
 	const props = {
 	  name: 'file',
 	  headers: {
@@ -22,7 +24,7 @@ const AddOrderForm: FC = () => {
 	}
 
 	const addBook = (value: any) => {
-		axios.post('books', ({...value, genres: value.genres.join(', ')}))
+		axios.post('books', ({...value, genres: value.genres.join(separator)}))
 			.then(res => console.log(res))
 			.catch(err => console.log(err))
 		console.log(value)
