@@ -4,16 +4,30 @@ import {useParams} from "react-router-dom";
 import { Section } from "../../components/sections/Section";
 import { Book } from "../../types/types";
 import { instance as axios } from "../../request/axios";
+import {useLocalStorage} from "react-use";
 
 const Order: FC = () => {
     const { id } = useParams()
     const [book, setBook] = useState<Book | null>(null)
+    const [value, setValue, remove] = useLocalStorage('shopping-card', '')
 
     useEffect(() => {
         axios.get(`book/${id}`)
             .then(res => setBook(res.data))
             .catch(err => console.log(err))
     }, [])
+
+    const toShoppingCart = () => {
+        const separator = ', '
+        let newValue;
+        if(!value){
+            newValue = id
+        } else {
+            const values: string[] = value?.split(separator)
+            newValue = [...values, id].join(separator)
+        }
+        setValue(newValue)
+    }
 
     const byOrder = () => {
         axios.post('by-book', ({id: id}))
@@ -57,7 +71,7 @@ const Order: FC = () => {
                         </Typography.Title>
                     </Col>
                     <Col>
-                        <Button onClick={byOrder} type={'primary'} size={'large'}>
+                        <Button onClick={toShoppingCart} type={'primary'} size={'large'}>
                             BY
                         </Button>
                     </Col>

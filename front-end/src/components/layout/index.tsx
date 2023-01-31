@@ -26,7 +26,14 @@ const Header: FC = () => {
                     <NavLink to={'/'}>LOGO</NavLink>
                 </Col>
                 <Col>
-                    <PersonalPhoto/>
+                    <Row gutter={[30,0]} align={'middle'}>
+                        <Col>
+                            <NavLink to={'/shopping-cart'}>Basket</NavLink>
+                        </Col>
+                        <Col>
+                            <PersonalPhoto/>
+                        </Col>
+                    </Row>
                 </Col>
             </Row>
         </Container>

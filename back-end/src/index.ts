@@ -101,6 +101,13 @@ app.route('/book/:id')
 		return
 	})
 
+app.route('/shopping-cart')
+	.post(urlencodedParser, async (req: RequestWithBody<{list: string[]}>, res: Response<QueryBook[] | null>) => {
+		const { list } = req.body
+		const books: QueryBook[] | null = await Book.find({ _id: { $in: list } })
+		res.json(books)
+	})
+
 app.route('/by-book')
 	.post(urlencodedParser, async (req: RequestWithBody<{id: string}>, res:Response<{checkoutUrl: string}>) => {
 		const { id } = req.body
@@ -129,6 +136,24 @@ app.route('/by-book')
 
 		res.send({checkoutUrl: session.url})
 		// res.sendStatus(HTTP_STATUSES.CREATED_201)
+	})
+
+app.route('/by-books')
+	.post(urlencodedParser, async (req: RequestWithBody<{list: string[]}>, res: Response<{checkoutUrl: string}>) => {
+		const { list } = req.body
+		const books: QueryBook[] | null = await Book.find({ _id: { $in: list } })
+		const stripeId: string[] = books.map(it => it.stripeId)
+		const products = await stripe.products.list({ids: stripeId})
+		const priceIds: string[] = products.data.map((it: any) => it.default_price)
+
+		const session = await stripe.checkout.sessions.create({
+			success_url: 'https://example.com/success',
+			cancel_url: 'https://google.com',
+			line_items: priceIds.map(it => ({price: it, quantity: 1})),
+			mode: 'payment',
+		})
+
+		res.send({checkoutUrl: session.url})
 	})
 
 mongoose
