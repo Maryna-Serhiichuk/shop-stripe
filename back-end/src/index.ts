@@ -50,7 +50,7 @@ app.route('/books')
 			name: name,
 			default_price_data: {
 				currency: 'usd',
-				unit_amount: price * 100
+				unit_amount: Math.round(price * 100)
 			},
 		})
 
@@ -102,10 +102,14 @@ app.route('/book/:id')
 	})
 
 app.route('/shopping-cart')
-	.post(urlencodedParser, async (req: RequestWithBody<{list: string[]}>, res: Response<QueryBook[] | null>) => {
+	.post(urlencodedParser, async (req: RequestWithBody<{list: string[] | undefined}>, res: Response<QueryBook[] | undefined>) => {
 		const { list } = req.body
-		const books: QueryBook[] | null = await Book.find({ _id: { $in: list } })
-		res.json(books)
+		try{
+			const books: QueryBook[] | null = await Book.find({ _id: { $in: list } })
+			res.json(books)
+		} catch (err) {
+			res.json(undefined)
+		}
 	})
 
 app.route('/by-book')
@@ -126,8 +130,8 @@ app.route('/by-book')
 		const priceId = product.default_price
 
 		const session = await stripe.checkout.sessions.create({
-			success_url: 'https://example.com/success',
-			cancel_url: 'https://google.com',
+			success_url: 'http://localhost:3000/success',
+			cancel_url: 'http://localhost:3000/shopping-cart',
 			line_items: [
 				{price: priceId, quantity: 1},
 			],

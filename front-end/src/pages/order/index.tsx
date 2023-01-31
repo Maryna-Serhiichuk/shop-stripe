@@ -1,12 +1,13 @@
 import { Button, Col, Row, Typography, Space } from "antd";
 import {FC, useEffect, useState} from "react";
-import {useParams} from "react-router-dom";
+import {useNavigate, useParams} from "react-router-dom";
 import { Section } from "../../components/sections/Section";
 import { Book } from "../../types/types";
 import { instance as axios } from "../../request/axios";
 import {useLocalStorage} from "react-use";
 
 const Order: FC = () => {
+    const navigation = useNavigate()
     const { id } = useParams()
     const [book, setBook] = useState<Book | null>(null)
     const [value, setValue, remove] = useLocalStorage('shopping-card', '')
@@ -33,6 +34,12 @@ const Order: FC = () => {
         axios.post('by-book', ({id: id}))
             .then(res => window.location.replace(res?.data?.checkoutUrl))
             .catch(err => console.log('err', err))
+    }
+
+    const deleteOrder = () => {
+        axios.delete(`/book/${id}`)
+            .then(res => res.data === 'OK' && navigation('success'))
+            .catch(err => console.log(err))
     }
 
     return (
@@ -71,9 +78,18 @@ const Order: FC = () => {
                         </Typography.Title>
                     </Col>
                     <Col>
-                        <Button onClick={toShoppingCart} type={'primary'} size={'large'}>
-                            BY
-                        </Button>
+                        <Row gutter={[24,0]}>
+                            <Col>
+                                <Button onClick={toShoppingCart} type={'primary'} size={'large'}>
+                                    Add to Wish List
+                                </Button>
+                            </Col>
+                            <Col>
+                                <Button onClick={deleteOrder} size={'large'}>
+                                    Delete Order
+                                </Button>
+                            </Col>
+                        </Row>
                     </Col>
                 </Row>
             </Space>

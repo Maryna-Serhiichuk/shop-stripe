@@ -10,7 +10,7 @@ const ShoppingCart: FC = () => {
     const separator = ', '
     const [value, setValue] = useLocalStorage('shopping-card', '')
     const orderIds = value as string
-    const [orders, setOrders] = useState<Book[]>()
+    const [orders, setOrders] = useState<Book[] | undefined>()
     const [checkedOrders, setCheckedOrders] = useState<string[]>([])
 
     useEffect(() => {
@@ -88,7 +88,7 @@ const ShoppingCartCard: FC<{item: Book, setLocalStorage: (id:string) => void}> =
                         <Col span={24}>
                             <Row justify={'space-between'} style={{fontSize:24}}>
                                 <Col>
-                                    <NavLink to={`book/${item._id}`}>{item.name}</NavLink>
+                                    <NavLink to={`/order/${item._id}`}>{item.name}</NavLink>
                                 </Col>
                                 <Col>
                                     <Typography.Text>

@@ -9,6 +9,7 @@ const Catalog = lazy<FC>(() => import('./catalog'))
 const Order = lazy<FC>(() => import('./order'))
 const AddOrder = lazy<FC>(() => import('./add-order'))
 const ShoppingCart = lazy<FC>(() => import('./shopping-cart'))
+const Success = lazy<FC>(() => import('./success'))
 
 const routes: RouteObject[] = [
   {
@@ -35,6 +36,10 @@ const routes: RouteObject[] = [
       {
         element: <ShoppingCart />,
         path: 'shopping-cart'
+      },
+      {
+        element: <Success />,
+        path: 'success'
       }
     //   {
     //     element: <Post />,

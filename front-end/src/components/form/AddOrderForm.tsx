@@ -1,9 +1,11 @@
 import { FC } from 'react'
-import { Col, Row, Form, Input, InputNumber, message, Upload, Button, Checkbox, Space } from 'antd'
-import { bookGenres, BookGenres } from "../../types/types"
+import { Form, Input, InputNumber, message, Upload, Button, Checkbox, Space } from 'antd'
+import { bookGenres } from "../../types/types"
 import { instance as axios } from "../../request/axios";
+import {useNavigate} from "react-router-dom";
 
 const AddOrderForm: FC = () => {
+	const navigation = useNavigate()
 	const separator = ', '
 
 	const props = {
@@ -25,7 +27,7 @@ const AddOrderForm: FC = () => {
 
 	const addBook = (value: any) => {
 		axios.post('books', ({...value, genres: value.genres.join(separator)}))
-			.then(res => console.log(res))
+			.then(res => res.data === 'Created' && navigation('/catalog'))
 			.catch(err => console.log(err))
 		console.log(value)
 	}
@@ -47,7 +49,7 @@ const AddOrderForm: FC = () => {
 				<Input placeholder={'Year'}/>
 			</Form.Item>
 			<Form.Item name={'price'}>
-				<Input placeholder={'Price'}/>
+				<InputNumber placeholder={'Price'}/>
 			</Form.Item>
 			<Form.Item name={'genres'}>
 				<Checkbox.Group options={bookGenres.map((genre, index) => ({ label: genre.charAt(0).toUpperCase() + genre.slice(1), value: genre, style: {width: '50%', marginRight: 0, padding: '2px 0'} }))} />
