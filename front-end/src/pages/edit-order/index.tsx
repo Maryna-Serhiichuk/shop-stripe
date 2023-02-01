@@ -10,6 +10,7 @@ const EditOrder: FC = () => {
     const separator = ', '
     const { id } = useParams()
     const [book, setBook] = useState<Book>()
+    const [changedBook, setChangedBook] = useState<Book>()
 
     useEffect(() => {
         id && axios.get(`book/${id}`)
@@ -18,7 +19,7 @@ const EditOrder: FC = () => {
     }, [])
 
     const changeBook = (value: any) => {
-        axios.put(`/book/${id}`, ({...value, genres: value.genres.join(separator)}))
+        axios.put(`/book/${id}`, ({...changedBook, genres: changedBook?.genres?.join(separator)}))
             .then(res => res.data === 'OK' && navigation('/catalog'))
             .catch(err => console.log('err',err))
     }
@@ -27,7 +28,14 @@ const EditOrder: FC = () => {
         <Row justify={'center'}>
             <Col span={8}>
                 {book &&
-                    <Form<Book> onFinish={changeBook} initialValues={book}>
+                    <Form<Book>
+                        onFinish={changeBook}
+                        initialValues={book}
+                        onValuesChange={e => {
+                            console.log(e)
+                            setChangedBook(prev => prev ? ({...prev, ...e}) : e)
+                        }}
+                    >
                         {/*<Form.Item name={'image'}>*/}
                         {/*	<Upload {...props} listType={'picture'} action={'/api/upload'} name={'file'}>*/}
                         {/*	    <Button icon={<UploadOutlined />}>Click to Upload</Button>*/}
