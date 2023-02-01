@@ -1,6 +1,6 @@
 import { Button, Col, Row, Typography, Space } from "antd";
 import {FC, useEffect, useState} from "react";
-import {useNavigate, useParams} from "react-router-dom";
+import {NavLink, useNavigate, useParams} from "react-router-dom";
 import { Section } from "../../components/sections/Section";
 import { Book } from "../../types/types";
 import { instance as axios } from "../../request/axios";
@@ -88,6 +88,13 @@ const Order: FC = () => {
                                 <Button onClick={deleteOrder} size={'large'}>
                                     Delete Order
                                 </Button>
+                            </Col>
+                            <Col>
+                                <NavLink to={`/edit-order/${id}`}>
+                                    <Button size={'large'}>
+                                        Edit Order
+                                    </Button>
+                                </NavLink>
                             </Col>
                         </Row>
                     </Col>

@@ -85,7 +85,7 @@ const List: FC = () => {
                                     <ListAnt.Item>
                                         <NavLink to={`/order/${item._id}`}>
                                             <Card
-                                                style={{ width: 300 }}
+                                                style={{ width: 300, overflow:'hidden' }}
                                                 cover={
                                                     <img
                                                         style={{height: '300px', objectFit: 'contain'}}

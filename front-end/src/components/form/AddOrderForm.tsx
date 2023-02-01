@@ -1,6 +1,6 @@
-import { FC } from 'react'
+import {FC, useEffect, useState} from 'react'
 import { Form, Input, InputNumber, message, Upload, Button, Checkbox, Space } from 'antd'
-import { bookGenres } from "../../types/types"
+import {Book, bookGenres} from "../../types/types"
 import { instance as axios } from "../../request/axios";
 import {useNavigate} from "react-router-dom";
 
@@ -29,11 +29,10 @@ const AddOrderForm: FC = () => {
 		axios.post('books', ({...value, genres: value.genres.join(separator)}))
 			.then(res => res.data === 'Created' && navigation('/catalog'))
 			.catch(err => console.log(err))
-		console.log(value)
 	}
 
 	return (
-		<Form onFinish={addBook}>
+		<Form<Book> onFinish={addBook}>
 			{/*<Form.Item name={'image'}>*/}
 			{/*	<Upload {...props} listType={'picture'} action={'/api/upload'} name={'file'}>*/}
 			{/*	    <Button icon={<UploadOutlined />}>Click to Upload</Button>*/}
@@ -52,7 +51,11 @@ const AddOrderForm: FC = () => {
 				<InputNumber placeholder={'Price'}/>
 			</Form.Item>
 			<Form.Item name={'genres'}>
-				<Checkbox.Group options={bookGenres.map((genre, index) => ({ label: genre.charAt(0).toUpperCase() + genre.slice(1), value: genre, style: {width: '50%', marginRight: 0, padding: '2px 0'} }))} />
+				<Checkbox.Group options={bookGenres.map((genre, index) => ({
+					label: genre.charAt(0).toUpperCase() + genre.slice(1),
+					value: genre,
+					style: {width: '50%', marginRight: 0, padding: '2px 0'}
+				}))} />
 			</Form.Item>
 			<Form.Item name={'description'}>
 				<Input.TextArea rows={4} placeholder={'Description'}/>

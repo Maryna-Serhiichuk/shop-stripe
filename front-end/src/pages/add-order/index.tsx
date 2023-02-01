@@ -1,4 +1,4 @@
-import { FC } from 'react'
+import {FC} from 'react'
 import { Row, Col } from 'antd'
 import { Section } from "../../components/sections/Section"
 import { AddOrderForm } from '../../components/form/AddOrderForm'
