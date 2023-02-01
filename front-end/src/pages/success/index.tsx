@@ -8,12 +8,12 @@ const Success: FC = () => {
         <Typography.Title level={2}>The Payment is Success</Typography.Title>
         <Row gutter={[20,0]}>
             <Col>
-                <NavLink to={'shopping-cart'}>
+                <NavLink to={'/shopping-cart'}>
                     <Button type={'primary'}>Return to my Wish List</Button>
                 </NavLink>
             </Col>
             <Col>
-                <NavLink to={'catalog'}>
+                <NavLink to={'/catalog'}>
                     <Button>Go to Catalog</Button>
                 </NavLink>
             </Col>

@@ -31,10 +31,7 @@ const EditOrder: FC = () => {
                     <Form<Book>
                         onFinish={changeBook}
                         initialValues={book}
-                        onValuesChange={e => {
-                            console.log(e)
-                            setChangedBook(prev => prev ? ({...prev, ...e}) : e)
-                        }}
+                        onValuesChange={e => setChangedBook(prev => prev ? ({...prev, ...e}) : e)}
                     >
                         {/*<Form.Item name={'image'}>*/}
                         {/*	<Upload {...props} listType={'picture'} action={'/api/upload'} name={'file'}>*/}

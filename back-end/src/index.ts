@@ -185,8 +185,8 @@ app.route('/by-books')
 		const priceIds: string[] = products.data.map((it: any) => it.default_price)
 
 		const session = await stripe.checkout.sessions.create({
-			success_url: 'https://example.com/success',
-			cancel_url: 'https://google.com',
+			success_url: 'http://localhost:3000/success',
+			cancel_url: 'http://localhost:3000/shopping-cart',
 			line_items: priceIds.map(it => ({price: it, quantity: 1})),
 			mode: 'payment',
 		})
