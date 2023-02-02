@@ -1,26 +1,40 @@
 import {Dispatch, FC, SetStateAction, useEffect, useState} from "react";
 import {Section} from "../../components/sections/Section";
-import {Button, Checkbox, Col, Form, InputNumber, List, Row, Space, Typography} from "antd";
+import {Button, Checkbox, Col, Form, Input, InputNumber, List, Row, Space, Tooltip, Typography} from "antd";
 import {useLocalStorage} from "react-use";
 import {instance as axios} from "../../request/axios";
 import {Book} from "../../types/types";
 import {NavLink} from "react-router-dom";
 import {useLocalStorageWishList, wishListLabel, WishListType} from "../../components/hook/useLocalStorageWishList";
 
+type DeliveryType = {
+    address: {city: string,number:number},
+    client: {name:string, surname:string,phone:string}
+}
+
 const WishList: FC = () => {
     const [value, setValue] = useLocalStorage(wishListLabel, '')
     const [orders, setOrders] = useState<Book[] | undefined>()
     const [checkedOrders, setCheckedOrders] = useState<WishListType[]>([])
     const {deleteFromWishList, wishListIds} = useLocalStorageWishList(value ?? '')
+    const [isDeliveryForm, setDeliveryFormState] = useState(false)
 
     useEffect(() => {
-        axios.post(`shopping-cart`, ({list: wishListIds}))
+        axios.post(`wish-list`, ({list: !isDeliveryForm ? wishListIds : checkedOrders.map(it => it.id) }))
             .then(res => setOrders(res.data))
             .catch(err => console.log(err))
-    }, [value])
 
-    const byOrders = () => {
-        axios.post('by-books', ({list: checkedOrders}))
+        if(!checkedOrders.length){
+            setDeliveryFormState(false)
+        }
+
+    }, [value, isDeliveryForm, checkedOrders])
+
+    const byOrders = (value: DeliveryType) => {
+        // передача delivery form
+        console.log(value)
+
+        axios.post('by-books', ({list: checkedOrders, delivery: value}))
             .then(res => window.location.replace(res?.data?.checkoutUrl))
             .catch(err => console.log('err', err))
     }
@@ -32,13 +46,33 @@ const WishList: FC = () => {
     return <Section>
         <Space size={70} direction={'vertical'} style={{width:'100%'}}>
             <WishListList list={orders as Book[]} setChecked={setCheckedOrders} setLocalStorage={deleteFromShoppingCart}/>
-            <Button type={'primary'} onClick={byOrders}>Pay Selected</Button>
+            <Row>
+                <Col span={24}>
+                    <Form onFinish={byOrders}>
+                        { isDeliveryForm &&
+                            <Col span={6}>
+                                <DeliveryForm/>
+                            </Col>
+                        }
+                        <Space size={12}>
+                            { !isDeliveryForm &&
+                                <Tooltip title={!checkedOrders.length ? 'Choose a order' : undefined}>
+                                    <Button disabled={!checkedOrders.length} type={'primary'} onClick={() => setDeliveryFormState(true)}>
+                                        Make a delivery
+                                    </Button>
+                                </Tooltip>
+                            }
+                            { isDeliveryForm && <Button htmlType={'submit'} type={'primary'}>Pay Selected</Button> }
+                            { isDeliveryForm && <Button onClick={() => setDeliveryFormState(false)}>Cancel</Button> }
+                        </Space>
+                    </Form>
+                </Col>
+            </Row>
         </Space>
     </Section>
 }
 
 const WishListList: FC<{list: Book[], setChecked: Dispatch<SetStateAction<WishListType[]>>, setLocalStorage: (id:string) => void}> = ({list, setChecked, setLocalStorage}) => {
-
     return (
         <List
             itemLayout="vertical"
@@ -127,6 +161,28 @@ const WishListCard: FC<{item: Book, setLocalStorage: (id:string) => void, setChe
                 </Row>
             </Col>
         </Row>
+    )
+}
+
+const DeliveryForm: FC = () => {
+    return (
+        <>
+            <Form.Item name={['address','city']}>
+                <Input placeholder={'City'} />
+            </Form.Item>
+            <Form.Item name={['address','number']}>
+                <InputNumber placeholder={'Number of Nova Poshta'}/>
+            </Form.Item>
+            <Form.Item name={['client','name']}>
+                <Input placeholder={'First Name'} />
+            </Form.Item>
+            <Form.Item name={['client','surname']}>
+                <Input placeholder={'Last Name'} />
+            </Form.Item>
+            <Form.Item name={['client','phone']}>
+                <Input placeholder={'Phone'} />
+            </Form.Item>
+        </>
     )
 }
 

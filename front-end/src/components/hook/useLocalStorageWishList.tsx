@@ -6,7 +6,13 @@ export type WishListType = {
 }
 
 export function useLocalStorageWishList(value: string) {
-    const wishList = JSON.parse(value as string) as WishListType[]
+    // const wishList = JSON.parse(value as string) as WishListType[]
+    let wishList: WishListType[] = []
+    try {
+        wishList = JSON.parse(value as string) as WishListType[]
+    } catch (err) {
+        wishList = [] as WishListType[]
+    }
     const wishListIds = wishList.map((it:WishListType) => it.id)
 
     const deleteFromWishList = (id: string) => {
