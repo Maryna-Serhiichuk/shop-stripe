@@ -2,7 +2,7 @@ import {Row, Segmented, List as ListAnt, Col, Card, Typography, Button, Form, In
 import { AppstoreOutlined, BarsOutlined, ShoppingCartOutlined } from '@ant-design/icons'
 import {FC, useEffect, useState} from "react"
 import { Book } from "../../types/types"
-import {NavLink, useSearchParams} from "react-router-dom"
+import {NavLink} from "react-router-dom"
 import { instance as axios} from "../../request/axios"
 import { SearchOutlined, SortAscendingOutlined, SortDescendingOutlined, HistoryOutlined } from '@ant-design/icons';
 

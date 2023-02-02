@@ -135,7 +135,7 @@ app.route('/book/:id')
 		return
 	})
 
-app.route('/shopping-cart')
+app.route('/wish-list')
 	.post(urlencodedParser, async (req: RequestWithBody<{list: string[] | undefined}>, res: Response<QueryBook[] | undefined>) => {
 		const { list } = req.body
 		try{
@@ -146,48 +146,20 @@ app.route('/shopping-cart')
 		}
 	})
 
-app.route('/by-book')
-	.post(urlencodedParser, async (req: RequestWithBody<{id: string}>, res:Response<{checkoutUrl: string}>) => {
-		const { id } = req.body
-
-		const instance: QueryBook | null = await Book.findById(id)
-		if(!instance || !instance?.stripeId) {
-			res.sendStatus(HTTP_STATUSES.SERVER_500)
-			return
-		}
-		const stripeId = instance.stripeId
-		const product = await stripe.products.retrieve(stripeId)
-		if(!product){
-			res.sendStatus(HTTP_STATUSES.SERVER_500)
-			return
-		}
-		const priceId = product.default_price
-
-		const session = await stripe.checkout.sessions.create({
-			success_url: 'http://localhost:3000/success',
-			cancel_url: 'http://localhost:3000/shopping-cart',
-			line_items: [
-				{price: priceId, quantity: 1},
-			],
-			mode: 'payment',
-		})
-
-		res.send({checkoutUrl: session.url})
-		// res.sendStatus(HTTP_STATUSES.CREATED_201)
-	})
-
 app.route('/by-books')
-	.post(urlencodedParser, async (req: RequestWithBody<{list: string[]}>, res: Response<{checkoutUrl: string}>) => {
+	.post(urlencodedParser, async (req: RequestWithBody<{list: {id:string,numbers:number}[]}>, res: Response<{checkoutUrl: string}>) => {
 		const { list } = req.body
-		const books: QueryBook[] | null = await Book.find({ _id: { $in: list } })
-		const stripeId: string[] = books.map(it => it.stripeId)
+		const listIds = list.map(it => it.id)
+		const books: QueryBook[] | null = await Book.find({ _id: { $in: listIds } })
+		const booksWithQuantity = books?.map(it => ({_id: it._id, stripeId: it.stripeId, quantity: list.find(item => item.id === String(it._id))?.numbers}))
+		const stripeId: string[] = booksWithQuantity.map(it => it.stripeId)
 		const products = await stripe.products.list({ids: stripeId})
-		const priceIds: string[] = products.data.map((it: any) => it.default_price)
+		const productsWithQuantity: {price:number, quantity:number}[] = products.data.map((it: any) => ({price: it.default_price, quantity: booksWithQuantity.find(item => String(it.id) === String(item.stripeId))?.quantity}))
 
 		const session = await stripe.checkout.sessions.create({
 			success_url: 'http://localhost:3000/success',
 			cancel_url: 'http://localhost:3000/shopping-cart',
-			line_items: priceIds.map(it => ({price: it, quantity: 1})),
+			line_items: productsWithQuantity.map(it => ({price: it.price, quantity: it.quantity})),
 			mode: 'payment',
 		})
 

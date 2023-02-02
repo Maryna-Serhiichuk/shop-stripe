@@ -41,6 +41,7 @@ export type UpdateBook = {
 }
 
 export type QueryBook = {
+    _id: string
     name: string
     author: string
     year: number
