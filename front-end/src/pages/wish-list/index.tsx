@@ -7,11 +7,6 @@ import {Book} from "../../types/types";
 import {NavLink} from "react-router-dom";
 import {useLocalStorageWishList, wishListLabel, WishListType} from "../../components/hook/useLocalStorageWishList";
 
-type DeliveryType = {
-    address: {city: string,number:number},
-    client: {name:string, surname:string,phone:string}
-}
-
 const WishList: FC = () => {
     const [value, setValue] = useLocalStorage(wishListLabel, '')
     const [orders, setOrders] = useState<Book[] | undefined>()
@@ -30,11 +25,8 @@ const WishList: FC = () => {
 
     }, [value, isDeliveryForm, checkedOrders])
 
-    const byOrders = (value: DeliveryType) => {
-        // передача delivery form
-        console.log(value)
-
-        axios.post('by-books', ({list: checkedOrders, delivery: value}))
+    const byOrders = (value: any) => {
+        axios.post('by-books', ({list: checkedOrders, metadata: value}))
             .then(res => window.location.replace(res?.data?.checkoutUrl))
             .catch(err => console.log('err', err))
     }
@@ -167,19 +159,19 @@ const WishListCard: FC<{item: Book, setLocalStorage: (id:string) => void, setChe
 const DeliveryForm: FC = () => {
     return (
         <>
-            <Form.Item name={['address','city']}>
+            <Form.Item name={'delivery_address_city'}>
                 <Input placeholder={'City'} />
             </Form.Item>
-            <Form.Item name={['address','number']}>
+            <Form.Item name={'delivery_address_number'}>
                 <InputNumber placeholder={'Number of Nova Poshta'}/>
             </Form.Item>
-            <Form.Item name={['client','name']}>
+            <Form.Item name={'delivery_client_name'}>
                 <Input placeholder={'First Name'} />
             </Form.Item>
-            <Form.Item name={['client','surname']}>
+            <Form.Item name={'delivery_client_surname'}>
                 <Input placeholder={'Last Name'} />
             </Form.Item>
-            <Form.Item name={['client','phone']}>
+            <Form.Item name={'delivery_client_phone'}>
                 <Input placeholder={'Phone'} />
             </Form.Item>
         </>

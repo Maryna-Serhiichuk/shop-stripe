@@ -56,8 +56,16 @@ app.route('/books')
 
 		const book = new Book({ name, year, author, description, genres, price, stripeId: product.id })
 		book.save()
-			.then(_ => res.sendStatus(HTTP_STATUSES.CREATED_201))
+			.then(async _ => {
+				const productDBid = await stripe.products.update(
+					product.id,
+					{metadata: {product_id: book.id}}
+				)
+				res.sendStatus(HTTP_STATUSES.CREATED_201)
+			})
 			.catch(err => res.sendStatus(HTTP_STATUSES.SERVER_500))
+
+
 	})
 
 app.route('/book/:id')
@@ -146,17 +154,9 @@ app.route('/wish-list')
 		}
 	})
 
-type ByBooksType = {
-	list: {id:string,numbers:number}[],
-	delivery: {
-		address: {city: string,number:number},
-		client: {name:string, surname:string,phone:string}
-	}
-}
-
 app.route('/by-books')
-	.post(urlencodedParser, async (req: RequestWithBody<ByBooksType>, res: Response<{checkoutUrl: string}>) => {
-		const { list, delivery } = req.body
+	.post(urlencodedParser, async (req: RequestWithBody<{list: {id:string,numbers:number}[], metadata: {[key:string]:string}}>, res: Response<{checkoutUrl: string}>) => {
+		const { list, metadata } = req.body
 		const listIds = list.map(it => it.id)
 		const books: QueryBook[] | null = await Book.find({ _id: { $in: listIds } })
 		const booksWithQuantity = books?.map(it => ({_id: it._id, stripeId: it.stripeId, quantity: list.find(item => item.id === String(it._id))?.numbers}))
@@ -167,19 +167,17 @@ app.route('/by-books')
 		const session = await stripe.checkout.sessions.create({
 			success_url: 'http://localhost:3000/success',
 			cancel_url: 'http://localhost:3000/wish-list',
-			line_items: productsWithQuantity.map(it => ({price: it.price, quantity: it.quantity})),
+			line_items: productsWithQuantity.map(it => ({
+				price: it.price,
+				quantity: it.quantity,
+			})),
 			mode: 'payment',
-			metadata: {
-				delivery_address_city: delivery.address.city,
-				delivery_address_number: delivery.address.number,
-				delivery_client_name: delivery.client.name,
-				delivery_client_surname: delivery.client.surname,
-				delivery_client_phone: delivery.client.phone
-			}
+			metadata
 		})
 
 		res.send({checkoutUrl: session.url})
 	})
+
 
 mongoose
 	.connect(url)
