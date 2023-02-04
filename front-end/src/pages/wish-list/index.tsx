@@ -1,5 +1,4 @@
 import {Dispatch, FC, SetStateAction, useEffect, useState} from "react";
-import {Section} from "../../components/sections/Section";
 import {Button, Checkbox, Col, Form, Input, InputNumber, List, Row, Space, Tooltip, Typography} from "antd";
 import {useLocalStorage} from "react-use";
 import {instance as axios} from "../../request/axios";
@@ -35,33 +34,31 @@ const WishList: FC = () => {
         setValue(deleteFromWishList(id))
     }
 
-    return <Section>
-        <Space size={70} direction={'vertical'} style={{width:'100%'}}>
-            <WishListList list={orders as Book[]} setChecked={setCheckedOrders} setLocalStorage={deleteFromShoppingCart}/>
-            <Row>
-                <Col span={24}>
-                    <Form onFinish={byOrders}>
-                        { isDeliveryForm &&
-                            <Col span={6}>
-                                <DeliveryForm/>
-                            </Col>
+    return <Space size={70} direction={'vertical'} style={{width:'100%'}}>
+        <WishListList list={orders as Book[]} setChecked={setCheckedOrders} setLocalStorage={deleteFromShoppingCart}/>
+        <Row>
+            <Col span={24}>
+                <Form onFinish={byOrders}>
+                    { isDeliveryForm &&
+                        <Col span={6}>
+                            <DeliveryForm/>
+                        </Col>
+                    }
+                    <Space size={12}>
+                        { !isDeliveryForm &&
+                            <Tooltip title={!checkedOrders.length ? 'Choose a order' : undefined}>
+                                <Button disabled={!checkedOrders.length} type={'primary'} onClick={() => setDeliveryFormState(true)}>
+                                    Make a delivery
+                                </Button>
+                            </Tooltip>
                         }
-                        <Space size={12}>
-                            { !isDeliveryForm &&
-                                <Tooltip title={!checkedOrders.length ? 'Choose a order' : undefined}>
-                                    <Button disabled={!checkedOrders.length} type={'primary'} onClick={() => setDeliveryFormState(true)}>
-                                        Make a delivery
-                                    </Button>
-                                </Tooltip>
-                            }
-                            { isDeliveryForm && <Button htmlType={'submit'} type={'primary'}>Pay Selected</Button> }
-                            { isDeliveryForm && <Button onClick={() => setDeliveryFormState(false)}>Cancel</Button> }
-                        </Space>
-                    </Form>
-                </Col>
-            </Row>
-        </Space>
-    </Section>
+                        { isDeliveryForm && <Button htmlType={'submit'} type={'primary'}>Pay Selected</Button> }
+                        { isDeliveryForm && <Button onClick={() => setDeliveryFormState(false)}>Cancel</Button> }
+                    </Space>
+                </Form>
+            </Col>
+        </Row>
+    </Space>
 }
 
 const WishListList: FC<{list: Book[], setChecked: Dispatch<SetStateAction<WishListType[]>>, setLocalStorage: (id:string) => void}> = ({list, setChecked, setLocalStorage}) => {

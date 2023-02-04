@@ -3,6 +3,7 @@ import type { RouteObject } from 'react-router-dom'
 import { createBrowserRouter, RouterProvider } from 'react-router-dom'
 
 import { Layout } from '../components/layout'
+import {MyOrderListLayout} from "../components/layout/MyOrderListLayout";
 
 const Home = lazy<FC>(() => import('./home'))
 const Catalog = lazy<FC>(() => import('./catalog'))
@@ -11,6 +12,7 @@ const AddOrder = lazy<FC>(() => import('./add-order'))
 const WishList = lazy<FC>(() => import('./wish-list'))
 const Success = lazy<FC>(() => import('./success'))
 const EditOrder = lazy<FC>(() => import('./edit-order'))
+const MyPurchases = lazy<FC>(() => import('./my-purchases'))
 
 const routes: RouteObject[] = [
   {
@@ -39,8 +41,18 @@ const routes: RouteObject[] = [
         path: 'edit-order/:id'
       },
       {
-        element: <WishList />,
-        path: 'wish-list'
+        element: <MyOrderListLayout />,
+        path: '',
+        children: [
+          {
+            element: <WishList />,
+            path: 'wish-list'
+          },
+          {
+            element: <MyPurchases />,
+            path: 'my-purchases'
+          },
+        ]
       },
       {
         element: <Success />,

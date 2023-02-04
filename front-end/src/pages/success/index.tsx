@@ -1,7 +1,7 @@
 import {FC} from "react";
 import {Section} from "../../components/sections/Section";
 import {Button, Col, Row, Typography} from "antd";
-import {NavLink, useParams} from "react-router-dom";
+import {NavLink} from "react-router-dom";
 
 const Success: FC = () => {
     return <Section>

@@ -52,7 +52,7 @@ const PersonalPhoto: FC = () => {
     const photoSize = 70
     return (
         <div style={{height: photoSize, width: photoSize, }}>
-            <img style={{height: '100%', width: '100%', objectFit: 'cover', borderRadius: '50%'}} src={'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSiY_BBq9EJopJ7s6xGctOMFLvDhY7LPCIesM18ezaj&s'} />
+            <img style={{height: '100%', width: '100%', objectFit: 'cover', borderRadius: '50%'}} src={'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSiY_BBq9EJopJ7s6xGctOMFLvDhY7LPCIesM18ezaj&s'} alt={''} />
         </div>
     )
 }
