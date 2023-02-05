@@ -49,7 +49,7 @@ export type Magazine = {
     created: string
 }
 
-type Customer = {
+export type Customer = {
     id: string
     name: string
     surname: string

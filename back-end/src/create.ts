@@ -1,4 +1,5 @@
 import { client } from "./client"
+import {Role} from "./models/role";
 
 const start = async () => {
 	try {
@@ -13,3 +14,16 @@ const start = async () => {
 }
 
 start()
+
+
+const setUserRoles = async () => {
+	try {
+		const user = new Role()
+		const admin = new Role({value: "ADMIN"})
+		await user.save()
+		await admin.save()
+	} catch (err) {
+		console.log(err)
+	}
+}
+setUserRoles()

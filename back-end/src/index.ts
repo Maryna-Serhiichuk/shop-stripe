@@ -6,7 +6,11 @@ import mongoose from 'mongoose'
 import {RequestWithBody, RequestWithParams, RequestWithParamsAndBody, RequestWithQuery} from "./types/requestTypes";
 import {CreateBook, QueryBook, UpdateBook} from "./types/Book";
 import { Book } from './models/book'
+import {Customer} from "./models/customer";
 import cors from 'cors'
+import bcrypt from 'bcryptjs'
+import {Role} from "./models/role";
+import {CreateCustomer, QueryCustomer} from "./types/Customer";
 
 const stripe = require('stripe')(stripeKey)
 
@@ -31,6 +35,46 @@ const HTTP_STATUSES = {
 
 	SERVER_500: 500
 }
+
+app.route('/me')
+	.get(async (req,res: Response<QueryCustomer>) => {
+		const customer = await Customer.findById('63dfe850d6550e60491fb57b')
+
+		res.json(customer as QueryCustomer)
+	})
+
+app.route('/registration')
+	.post(async (req: RequestWithBody<CreateCustomer>,res: Response<QueryCustomer>) => {
+		try {
+			const { email, password, name, surname, phone } = req.body
+			const candidate = await Customer.findOne({email})
+			if(candidate) {
+				return res.sendStatus(HTTP_STATUSES.BAD_REQUEST_400) // .json({message: 'Customer already exists'})
+			}
+			const hashPassword = bcrypt.hashSync(password, 7)
+			const userRole = await Role.findOne({value:'CUSTOMER'})
+			const customer = new Customer({name, surname, phone, email, role: userRole?.value, password: hashPassword})
+			await customer.save()
+
+			const customerStripe = await stripe.customers.create({
+				email, phone,
+				name: name + surname
+			})
+
+			const result = await Customer.updateOne(
+				{_id: new ObjectId(customer.id)},
+				{$set: {
+						customerStripeId: customerStripe.id
+					}}
+			)
+			// result.acknowledged
+
+			return res.sendStatus(HTTP_STATUSES.CREATED_201) // .json({message: 'Customer is registered'})
+		} catch (err) {
+			console.log(err)
+			res.sendStatus(HTTP_STATUSES.BAD_REQUEST_400) // .json({message: 'Registration error'})
+		}
+	})
 
 app.route('/books')
 	.get(async (req: RequestWithParams<QueryBook>, res: Response<QueryBook[]>)  => {

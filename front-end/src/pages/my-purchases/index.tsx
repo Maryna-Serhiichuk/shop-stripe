@@ -11,13 +11,10 @@ const MyPurchases: FC = () => {
     const [orders, setOrders] = useState<Book[] | undefined>()
     const {wishListIds} = useLocalStorageWishList(value ?? '')
 
-    console.log(orders)
-
     useEffect(() => {
         axios.post(`wish-list`, ({list: wishListIds }))
             .then(res => setOrders(res.data))
             .catch(err => console.log(err))
-
     }, [])
 
     return (
