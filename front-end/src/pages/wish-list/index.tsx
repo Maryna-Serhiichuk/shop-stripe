@@ -2,9 +2,10 @@ import {Dispatch, FC, SetStateAction, useEffect, useState} from "react";
 import {Button, Checkbox, Col, Form, Input, InputNumber, List, Row, Space, Tooltip, Typography} from "antd";
 import {useLocalStorage} from "react-use";
 import {instance as axios} from "../../request/axios";
-import {Book} from "../../types/types";
+import {Book, Customer} from "../../types/types";
 import {NavLink} from "react-router-dom";
 import {useLocalStorageWishList, wishListLabel, WishListType} from "../../components/hook/useLocalStorageWishList";
+import {useApp} from "../../App";
 
 const WishList: FC = () => {
     const [value, setValue] = useLocalStorage(wishListLabel, '')
@@ -13,8 +14,18 @@ const WishList: FC = () => {
     const {deleteFromWishList, wishListIds} = useLocalStorageWishList(value ?? '')
     const [isDeliveryForm, setDeliveryFormState] = useState(false)
 
+    // const [me, setMe] = useState<Customer>()
+
+    const { auth } = useApp()
+
+    // useEffect(() => {
+    //     axios.get('me')
+    //         .then(res => setMe(res.data))
+    //         .catch(err => console.log(err))
+    // }, [])
+
     useEffect(() => {
-        axios.post(`wish-list`, ({list: !isDeliveryForm ? wishListIds : checkedOrders.map(it => it.id) }))
+        axios.post(`wish-list`, ({list: !isDeliveryForm ? (auth?.authenticated ?  auth?.me?.wishList : wishListIds) : checkedOrders.map(it => it.id) }))
             .then(res => setOrders(res.data))
             .catch(err => console.log(err))
 
@@ -22,7 +33,7 @@ const WishList: FC = () => {
             setDeliveryFormState(false)
         }
 
-    }, [value, isDeliveryForm, checkedOrders])
+    }, [value, isDeliveryForm, checkedOrders, auth?.me])
 
     const byOrders = (value: any) => {
         axios.post('by-books', ({list: checkedOrders, metadata: value}))
@@ -35,6 +46,7 @@ const WishList: FC = () => {
     }
 
     return <Space size={70} direction={'vertical'} style={{width:'100%'}}>
+        <Row>{!!auth?.me ? 'AUTH' : 'GUEST'}</Row>
         <WishListList list={orders as Book[]} setChecked={setCheckedOrders} setLocalStorage={deleteFromShoppingCart}/>
         <Row>
             <Col span={24}>

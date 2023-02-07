@@ -25,6 +25,8 @@ app.use(cors({ origin: '*' }))
 
 const port = 3030
 
+const customerId = '63dfe850d6550e60491fb57b'
+
 const HTTP_STATUSES = {
     OK_200: 200,
     CREATED_201: 201,
@@ -38,7 +40,7 @@ const HTTP_STATUSES = {
 
 app.route('/me')
 	.get(async (req,res: Response<QueryCustomer>) => {
-		const customer = await Customer.findById('63dfe850d6550e60491fb57b')
+		const customer = await Customer.findById(customerId)
 
 		res.json(customer as QueryCustomer)
 	})
@@ -195,6 +197,26 @@ app.route('/wish-list')
 			res.json(books)
 		} catch (err) {
 			res.json(undefined)
+		}
+	})
+
+app.route('/wish-list/:id')
+	.get(async (req: RequestWithParams<{id: string}>, res: Response<number>) => {
+		const { id } = req.params
+
+		try{
+			const customer = await Customer.updateOne(
+				{_id: new ObjectId(customerId)},
+				{$push: {
+						wishList: [new ObjectId(id)]
+					}}
+			)
+			if(!customer.acknowledged){
+				res.sendStatus(HTTP_STATUSES.BAD_REQUEST_400)
+			}
+			res.sendStatus(HTTP_STATUSES.CREATED_201)
+		} catch (err) {
+			res.sendStatus(HTTP_STATUSES.BAD_REQUEST_400)
 		}
 	})
 

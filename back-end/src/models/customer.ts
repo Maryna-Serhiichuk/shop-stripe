@@ -9,10 +9,10 @@ const customerSchema = new Schema({
     name: {type: String, required: true},
     surname: {type: String, required: true},
     phone: { type: String },
-    wishList: {
+    wishList: [{
         type: mongoose.Schema.Types.ObjectId,
         ref: "Book",
-    },
+    }],
     delivery: {
         city: { type: String },
         number: { type: String }

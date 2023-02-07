@@ -16,6 +16,8 @@ const List: FC = () => {
         sort: 'newer'
     })
 
+    const [me, setMe] = useState(true)
+
     useEffect(() => {
         axios.get(`books?${Object.keys(reqQuery).map(key => `${key}=${reqQuery[key]}`).join('&')}`)
             .then(res => setBooks(res.data))

@@ -53,9 +53,16 @@ export type Customer = {
     id: string
     name: string
     surname: string
-    address: string
-    created: string
-    subscribe: Subscribe
+    email: string
+    role: string
+    phone: string
+    wishList: string[],
+    delivery: {
+        city: string,
+        number: string
+    },
+    customerStripeId: string,
+    // subscribe: Subscribe
     // discount: Discount[]
 }
 

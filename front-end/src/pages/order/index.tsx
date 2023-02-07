@@ -6,6 +6,7 @@ import { Book } from "../../types/types";
 import { instance as axios } from "../../request/axios";
 import {useLocalStorage} from "react-use";
 import {useLocalStorageWishList, wishListLabel} from "../../components/hook/useLocalStorageWishList";
+import {useApp} from "../../App";
 
 const Order: FC = () => {
     const navigation = useNavigate()
@@ -14,6 +15,8 @@ const Order: FC = () => {
     const [value, setValue, remove] = useLocalStorage(wishListLabel, '')
     const {addToWishList} = useLocalStorageWishList(value ?? '')
 
+    const { auth } = useApp()
+
     useEffect(() => {
         axios.get(`book/${id}`)
             .then(res => setBook(res.data))
@@ -21,7 +24,13 @@ const Order: FC = () => {
     }, [])
 
     const toShoppingCart = () => {
-        setValue(addToWishList(id as string))
+        if(auth?.authenticated){
+            axios.get(`wish-list/${id}`)
+                .then(res => console.log(res.data))
+                .catch(err => console.log(err))
+        } else {
+            setValue(addToWishList(id as string))
+        }
     }
 
     const byOrder = () => {
