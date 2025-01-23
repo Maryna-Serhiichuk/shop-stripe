@@ -5,6 +5,7 @@ import { createBrowserRouter, RouterProvider } from 'react-router-dom'
 import { Layout } from '../components/layout'
 import {MyOrderListLayout} from "../components/layout/MyOrderListLayout";
 import {AuthLayout} from "../components/layout/AuthLayout";
+import Test from "./test";
 
 const Home = lazy<FC>(() => import('./home'))
 const Catalog = lazy<FC>(() => import('./catalog'))
@@ -15,9 +16,12 @@ const Success = lazy<FC>(() => import('./success'))
 const EditOrder = lazy<FC>(() => import('./edit-order'))
 const MyPurchases = lazy<FC>(() => import('./my-purchases'))
 const Registration = lazy<FC>(() => import('./registration'))
-
+const Account = lazy<FC>(() => import('./account'))
+const Animation = lazy<FC>(() => import('./animation'))
 
 const routes: RouteObject[] = [
+  {path:'animation', element:<Animation/>},
+  {path:'test', element:<Test/>},
   {
     path: '',
     element: <Layout />,
@@ -42,6 +46,10 @@ const routes: RouteObject[] = [
       {
         element: <EditOrder />,
         path: 'edit-order/:id'
+      },
+      {
+        element: <Account/>,
+        path: 'account'
       },
       {
         element: <MyOrderListLayout />,

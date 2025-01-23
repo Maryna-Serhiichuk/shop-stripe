@@ -12,6 +12,11 @@ import bcrypt from 'bcryptjs'
 import {Role} from "./models/role";
 import {CreateCustomer, QueryCustomer} from "./types/Customer";
 
+import swaggerUi from 'swagger-ui-express'
+import YAML from 'yamljs'
+import swaggerDocument from './swagger/swagger.json'
+// const swaggerDocument = YAML.load('./swagger.yaml')
+
 const stripe = require('stripe')(stripeKey)
 
 const app = express()
@@ -25,7 +30,7 @@ app.use(cors({ origin: '*' }))
 
 const port = 3030
 
-const customerId = '63dfe850d6550e60491fb57b'
+const defaultCustomerId = '63dfe850d6550e60491fb57b'
 
 const HTTP_STATUSES = {
     OK_200: 200,
@@ -38,9 +43,11 @@ const HTTP_STATUSES = {
 	SERVER_500: 500
 }
 
+app.use('/api-docs', swaggerUi.serve as any, swaggerUi.setup(swaggerDocument) as any);
+
 app.route('/me')
 	.get(async (req,res: Response<QueryCustomer>) => {
-		const customer = await Customer.findById(customerId)
+		const customer = await Customer.findById(defaultCustomerId)
 
 		res.json(customer as QueryCustomer)
 	})
@@ -189,9 +196,10 @@ app.route('/book/:id')
 		return
 	})
 
-app.route('/wish-list')
+app.route('/books-list')
 	.post(urlencodedParser, async (req: RequestWithBody<{list: string[] | undefined}>, res: Response<QueryBook[] | undefined>) => {
 		const { list } = req.body
+
 		try{
 			const books: QueryBook[] | null = await Book.find({ _id: { $in: list } })
 			res.json(books)
@@ -206,7 +214,7 @@ app.route('/wish-list/:id')
 
 		try{
 			const customer = await Customer.updateOne(
-				{_id: new ObjectId(customerId)},
+				{_id: new ObjectId(defaultCustomerId)},
 				{$push: {
 						wishList: [new ObjectId(id)]
 					}}
@@ -242,6 +250,108 @@ app.route('/by-books')
 		})
 
 		res.send({checkoutUrl: session.url})
+	})
+
+app.route('/connect')
+	.post(urlencodedParser, async (req: RequestWithBody<{email: string}>, res: Response<any>) => {
+		try {
+			const account = await stripe.accounts.create({
+				type: 'standard',
+				email: req.body.email,
+			});
+
+			const accountLink = await stripe.accountLinks.create({
+			 	account: account.id,
+			 	refresh_url: 'https://example.com/reauth',
+			 	return_url: 'https://example.com/return',
+			 	type: 'account_onboarding',
+			})
+
+			res.send({url: accountLink.url})
+			// res.sendStatus(HTTP_STATUSES.OK_200)
+		} catch (err) {
+			// res.sendStatus(555)
+			res.send({error: err})
+		}
+		// res.send({checkoutUrl: session.url})
+		// res.sendStatus(HTTP_STATUSES.OK_200)
+	})
+
+app.route('/subscribe')
+	.post(urlencodedParser, async (req: RequestWithBody<{
+		accountId?: string
+		customerId?: string
+		priceId?: string
+	}>, res: Response<any>) => {
+		const { accountId, customerId, priceId } = req.body
+
+		try {
+
+			const customer = await stripe.customers.create({
+				name: 'Name',
+				payment_method: 'pm_card_visa',
+				invoice_settings: {
+					default_payment_method: 'pm_card_visa'
+				}
+			}, {stripeAccount: accountId})
+
+			const subscription = await stripe.subscriptions.create({
+				customer: customer.id,
+				items: [
+					{price_data:
+						{
+							currency: 'usd',
+							product: 'prod_Na31ETpYxuPh9u',
+							unit_amount: 500,
+							recurring: {
+								interval: 'month'
+							}
+						}
+					},
+				],
+			}, {stripeAccount: accountId})
+
+			res.send({subscription})
+		} catch (err) {
+			res.send({err})
+		}
+
+		// try { // default_source
+		// 	const customer = await stripe.customers.create({
+		// 		name: 'Tetsttt222',
+		// 		payment_method: 'pm_card_visa',
+		// 		invoice_settings: {
+		// 			default_payment_method: 'pm_card_visa'
+		// 		}
+		// 	})
+		//
+		// 	const subscription = await stripe.subscriptions.create({
+		// 		customer: customer.id,
+		// 		items: [
+		// 			{
+		// 				price_data: {
+		// 					currency: 'USD',
+		// 					product: 'prod_Na1NNnp1xPh9CM',
+		// 					unit_amount: 500,
+		// 					recurring: {
+		// 						interval: 'month'
+		// 					}
+		// 				}
+		// 			},
+		// 		],
+		// 		// payment_settings: {
+		// 		// 	payment_method_types: ['card'],
+		// 		// 	save_default_payment_method: 'on_subscription'
+		// 		// },
+		// 		// expand: ['latest_invoice.payment_intent']
+		// 	}) // ,{ stripe_account: accountId }
+		//
+		// 	res.send({subscription})
+		//
+		// 	res.sendStatus(HTTP_STATUSES.BAD_REQUEST_400)
+		// } catch (err) {
+		// 	res.send({err})
+		// }
 	})
 
 

@@ -25,7 +25,7 @@ const WishList: FC = () => {
     // }, [])
 
     useEffect(() => {
-        axios.post(`wish-list`, ({list: !isDeliveryForm ? (auth?.authenticated ?  auth?.me?.wishList : wishListIds) : checkedOrders.map(it => it.id) }))
+        axios.post(`books-list`, ({list: !isDeliveryForm ? (auth?.authenticated ?  auth?.me?.wishList : wishListIds) : checkedOrders.map(it => it.id) }))
             .then(res => setOrders(res.data))
             .catch(err => console.log(err))
 
