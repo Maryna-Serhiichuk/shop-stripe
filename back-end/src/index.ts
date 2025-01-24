@@ -1,16 +1,20 @@
-import express, {Response} from 'express'
+import express, { Response } from 'express'
 import { client } from './client'
-import {stripeKey, url} from './connect'
+import { stripeKey, url } from './connect'
 import { ObjectId } from 'mongodb'
 import mongoose from 'mongoose'
-import {RequestWithBody, RequestWithParams, RequestWithParamsAndBody, RequestWithQuery} from "./types/requestTypes";
-import {CreateBook, QueryBook, UpdateBook} from "./types/Book";
+import { RequestWithBody, RequestWithParams, RequestWithParamsAndBody } from "./types/requestTypes";
+import { CreateBook, QueryBook, UpdateBook } from "./types/Book";
 import { Book } from './models/book'
-import {Customer} from "./models/customer";
+import { Customer } from "./models/customer";
 import cors from 'cors'
 import bcrypt from 'bcryptjs'
-import {Role} from "./models/role";
-import {CreateCustomer, QueryCustomer} from "./types/Customer";
+import { Role } from "./models/role";
+import { CreateCustomer, QueryCustomer } from "./types/Customer";
+
+import swaggerUi from 'swagger-ui-express'
+import swaggerDocument from './swagger/swagger.json'
+import { SubscribeRequest, ByBookRequest, BookListRequest, ByBookResponse } from './types/queryTypes'
 
 const stripe = require('stripe')(stripeKey)
 
@@ -25,7 +29,7 @@ app.use(cors({ origin: '*' }))
 
 const port = 3030
 
-const customerId = '63dfe850d6550e60491fb57b'
+const defaultCustomerId = '63dfe850d6550e60491fb57b'
 
 const HTTP_STATUSES = {
     OK_200: 200,
@@ -38,9 +42,11 @@ const HTTP_STATUSES = {
 	SERVER_500: 500
 }
 
+app.use('/api-docs', swaggerUi.serve as any, swaggerUi.setup(swaggerDocument) as any);
+
 app.route('/me')
 	.get(async (req,res: Response<QueryCustomer>) => {
-		const customer = await Customer.findById(customerId)
+		const customer = await Customer.findById(defaultCustomerId)
 
 		res.json(customer as QueryCustomer)
 	})
@@ -189,9 +195,10 @@ app.route('/book/:id')
 		return
 	})
 
-app.route('/wish-list')
-	.post(urlencodedParser, async (req: RequestWithBody<{list: string[] | undefined}>, res: Response<QueryBook[] | undefined>) => {
+app.route('/books-list')
+	.post(urlencodedParser, async (req: RequestWithBody<BookListRequest>, res: Response<QueryBook[] | undefined>) => {
 		const { list } = req.body
+
 		try{
 			const books: QueryBook[] | null = await Book.find({ _id: { $in: list } })
 			res.json(books)
@@ -206,7 +213,7 @@ app.route('/wish-list/:id')
 
 		try{
 			const customer = await Customer.updateOne(
-				{_id: new ObjectId(customerId)},
+				{_id: new ObjectId(defaultCustomerId)},
 				{$push: {
 						wishList: [new ObjectId(id)]
 					}}
@@ -221,7 +228,7 @@ app.route('/wish-list/:id')
 	})
 
 app.route('/by-books')
-	.post(urlencodedParser, async (req: RequestWithBody<{list: {id:string,numbers:number}[], metadata: {[key:string]:string}}>, res: Response<{checkoutUrl: string}>) => {
+	.post(urlencodedParser, async (req: RequestWithBody<ByBookRequest>, res: Response<ByBookResponse>) => {
 		const { list, metadata } = req.body
 		const listIds = list.map(it => it.id)
 		const books: QueryBook[] | null = await Book.find({ _id: { $in: listIds } })
@@ -242,6 +249,104 @@ app.route('/by-books')
 		})
 
 		res.send({checkoutUrl: session.url})
+	})
+
+app.route('/connect')
+	.post(urlencodedParser, async (req: RequestWithBody<{email: string}>, res: Response<any>) => {
+		try {
+			const account = await stripe.accounts.create({
+				type: 'standard',
+				email: req.body.email,
+			});
+
+			const accountLink = await stripe.accountLinks.create({
+			 	account: account.id,
+			 	refresh_url: 'https://example.com/reauth',
+			 	return_url: 'https://example.com/return',
+			 	type: 'account_onboarding',
+			})
+
+			res.send({url: accountLink.url})
+			// res.sendStatus(HTTP_STATUSES.OK_200)
+		} catch (err) {
+			// res.sendStatus(555)
+			res.send({error: err})
+		}
+		// res.send({checkoutUrl: session.url})
+		// res.sendStatus(HTTP_STATUSES.OK_200)
+	})
+
+app.route('/subscribe')
+	.post(urlencodedParser, async (req: RequestWithBody<SubscribeRequest>, res: Response<any>) => {
+		const { accountId, customerId, priceId } = req.body
+
+		try {
+
+			const customer = await stripe.customers.create({
+				name: 'Name',
+				payment_method: 'pm_card_visa',
+				invoice_settings: {
+					default_payment_method: 'pm_card_visa'
+				}
+			}, {stripeAccount: accountId})
+
+			const subscription = await stripe.subscriptions.create({
+				customer: customer.id,
+				items: [
+					{price_data:
+						{
+							currency: 'usd',
+							product: 'prod_Na31ETpYxuPh9u',
+							unit_amount: 500,
+							recurring: {
+								interval: 'month'
+							}
+						}
+					},
+				],
+			}, {stripeAccount: accountId})
+
+			res.send({subscription})
+		} catch (err) {
+			res.send({err})
+		}
+
+		// try { // default_source
+		// 	const customer = await stripe.customers.create({
+		// 		name: 'Tetsttt222',
+		// 		payment_method: 'pm_card_visa',
+		// 		invoice_settings: {
+		// 			default_payment_method: 'pm_card_visa'
+		// 		}
+		// 	})
+		//
+		// 	const subscription = await stripe.subscriptions.create({
+		// 		customer: customer.id,
+		// 		items: [
+		// 			{
+		// 				price_data: {
+		// 					currency: 'USD',
+		// 					product: 'prod_Na1NNnp1xPh9CM',
+		// 					unit_amount: 500,
+		// 					recurring: {
+		// 						interval: 'month'
+		// 					}
+		// 				}
+		// 			},
+		// 		],
+		// 		// payment_settings: {
+		// 		// 	payment_method_types: ['card'],
+		// 		// 	save_default_payment_method: 'on_subscription'
+		// 		// },
+		// 		// expand: ['latest_invoice.payment_intent']
+		// 	}) // ,{ stripe_account: accountId }
+		//
+		// 	res.send({subscription})
+		//
+		// 	res.sendStatus(HTTP_STATUSES.BAD_REQUEST_400)
+		// } catch (err) {
+		// 	res.send({err})
+		// }
 	})
 
 

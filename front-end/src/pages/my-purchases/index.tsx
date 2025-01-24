@@ -5,17 +5,24 @@ import {useLocalStorageWishList, wishListLabel} from "../../components/hook/useL
 import {useLocalStorage} from "react-use";
 import {Col, List, Row, Skeleton} from "antd";
 import {NavLink} from "react-router-dom";
+import {useApp} from "../../App";
 
 const MyPurchases: FC = () => {
     const [value] = useLocalStorage(wishListLabel, '')
     const [orders, setOrders] = useState<Book[] | undefined>()
     const {wishListIds} = useLocalStorageWishList(value ?? '')
 
+    const { auth } = useApp()
+    const purchasesList = auth?.me?.purchasesList
+
     useEffect(() => {
-        axios.post(`wish-list`, ({list: wishListIds }))
-            .then(res => setOrders(res.data))
+        axios.post(`books-list`, ({list: purchasesList }))
+            .then(res => {
+                console.log(res)
+                setOrders(res.data)
+            })
             .catch(err => console.log(err))
-    }, [])
+    }, [auth?.me])
 
     return (
         <Row style={{width:'100%'}}>

@@ -13,6 +13,10 @@ const customerSchema = new Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: "Book",
     }],
+    purchasesList: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Book",
+    }],
     delivery: {
         city: { type: String },
         number: { type: String }

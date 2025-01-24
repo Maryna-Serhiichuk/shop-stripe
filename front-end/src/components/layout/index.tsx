@@ -33,7 +33,9 @@ const Header: FC = () => {
                             <NavLink to={'/wish-list'}>Basket</NavLink>
                         </Col>
                         <Col>
-                            <PersonalPhoto/>
+                            <NavLink to={'/account'}>
+                                <PersonalPhoto/>
+                            </NavLink>
                         </Col>
                     </Row>
                 </Col>

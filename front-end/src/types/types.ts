@@ -56,7 +56,8 @@ export type Customer = {
     email: string
     role: string
     phone: string
-    wishList: string[],
+    wishList: string[]
+    purchasesList: string[]
     delivery: {
         city: string,
         number: string
