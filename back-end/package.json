@@ -16,8 +16,7 @@
     "swagger-ui-express": "^5.0.1",
     "tsoa": "^6.6.0",
     "vin": "^0.1.0",
-    "vin-decode": "^0.2.0",
-    "yamljs": "^0.3.0"
+    "vin-decode": "^0.2.0"
   },
   "devDependencies": {
     "@types/cors": "^2.8.13",

@@ -1,21 +1,20 @@
-import express, {Response} from 'express'
+import express, { Response } from 'express'
 import { client } from './client'
-import {stripeKey, url} from './connect'
+import { stripeKey, url } from './connect'
 import { ObjectId } from 'mongodb'
 import mongoose from 'mongoose'
-import {RequestWithBody, RequestWithParams, RequestWithParamsAndBody, RequestWithQuery} from "./types/requestTypes";
-import {CreateBook, QueryBook, UpdateBook} from "./types/Book";
+import { RequestWithBody, RequestWithParams, RequestWithParamsAndBody } from "./types/requestTypes";
+import { CreateBook, QueryBook, UpdateBook } from "./types/Book";
 import { Book } from './models/book'
-import {Customer} from "./models/customer";
+import { Customer } from "./models/customer";
 import cors from 'cors'
 import bcrypt from 'bcryptjs'
-import {Role} from "./models/role";
-import {CreateCustomer, QueryCustomer} from "./types/Customer";
+import { Role } from "./models/role";
+import { CreateCustomer, QueryCustomer } from "./types/Customer";
 
 import swaggerUi from 'swagger-ui-express'
-import YAML from 'yamljs'
 import swaggerDocument from './swagger/swagger.json'
-// const swaggerDocument = YAML.load('./swagger.yaml')
+import { SubscribeRequest, ByBookRequest, BookListRequest, ByBookResponse } from './types/queryTypes'
 
 const stripe = require('stripe')(stripeKey)
 
@@ -197,7 +196,7 @@ app.route('/book/:id')
 	})
 
 app.route('/books-list')
-	.post(urlencodedParser, async (req: RequestWithBody<{list: string[] | undefined}>, res: Response<QueryBook[] | undefined>) => {
+	.post(urlencodedParser, async (req: RequestWithBody<BookListRequest>, res: Response<QueryBook[] | undefined>) => {
 		const { list } = req.body
 
 		try{
@@ -229,7 +228,7 @@ app.route('/wish-list/:id')
 	})
 
 app.route('/by-books')
-	.post(urlencodedParser, async (req: RequestWithBody<{list: {id:string,numbers:number}[], metadata: {[key:string]:string}}>, res: Response<{checkoutUrl: string}>) => {
+	.post(urlencodedParser, async (req: RequestWithBody<ByBookRequest>, res: Response<ByBookResponse>) => {
 		const { list, metadata } = req.body
 		const listIds = list.map(it => it.id)
 		const books: QueryBook[] | null = await Book.find({ _id: { $in: listIds } })
@@ -278,11 +277,7 @@ app.route('/connect')
 	})
 
 app.route('/subscribe')
-	.post(urlencodedParser, async (req: RequestWithBody<{
-		accountId?: string
-		customerId?: string
-		priceId?: string
-	}>, res: Response<any>) => {
+	.post(urlencodedParser, async (req: RequestWithBody<SubscribeRequest>, res: Response<any>) => {
 		const { accountId, customerId, priceId } = req.body
 
 		try {

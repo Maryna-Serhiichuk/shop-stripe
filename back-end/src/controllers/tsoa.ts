@@ -1,12 +1,11 @@
 import { Controller, Post, Route, Tags, Body, Get, Put, Delete, Response, SuccessResponse, Path, Query } from 'tsoa';
 import { CreateCustomer } from './../types/Customer'
 import { QueryBook, CreateBook, UpdateBook } from './../types/Book'
-
-type ID = { id: string }
+import { BookListRequest, ByBookRequest, ByBookResponse, SubscribeRequest } from '../types/queryTypes';
 
 @Route('api')
-@Tags('Sample Api')
-export class SampleController extends Controller {
+@Tags('Api')
+export class ApiController extends Controller {
   /**
    * Registration
    * @summary Registration
@@ -105,7 +104,7 @@ export class SampleController extends Controller {
    */
   @Post('books-list')
   public async getBooksByIds(
-    @Body() requestBody: {list: string[] | undefined}
+    @Body() requestBody: BookListRequest
   ): Promise<QueryBook[] | undefined> {
     return []
   }
@@ -124,4 +123,26 @@ export class SampleController extends Controller {
     this.setStatus(400);
     this.setStatus(201);
   }
+
+  /**
+   * Create Checkout Session
+   * @summary Create Checkout Session
+   * @param requestBody
+   */
+  @Post('by-books')
+  public async createCheckoutSession(
+    @Body() requestBody: ByBookRequest
+  ): Promise<ByBookResponse> {
+    return { checkoutUrl: 'http://localhost:3000' }
+  }
+
+   /**
+   * Subscribe
+   * @summary Subscribe
+   * @param requestBody
+   */
+   @Post('subscribe')
+   public async subscribe(
+     @Body() requestBody: SubscribeRequest
+   ): Promise<void> {}
 }

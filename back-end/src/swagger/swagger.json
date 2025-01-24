@@ -136,6 +136,77 @@
 					}
 				},
 				"type": "object"
+			},
+			"BookListRequest": {
+				"properties": {
+					"list": {
+						"items": {
+							"type": "string"
+						},
+						"type": "array"
+					}
+				},
+				"type": "object"
+			},
+			"ByBookResponse": {
+				"properties": {
+					"checkoutUrl": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"checkoutUrl"
+				],
+				"type": "object"
+			},
+			"ByBookRequest": {
+				"properties": {
+					"metadata": {
+						"properties": {},
+						"additionalProperties": {
+							"type": "string"
+						},
+						"type": "object"
+					},
+					"list": {
+						"items": {
+							"properties": {
+								"numbers": {
+									"type": "number",
+									"format": "double"
+								},
+								"id": {
+									"type": "string"
+								}
+							},
+							"required": [
+								"numbers",
+								"id"
+							],
+							"type": "object"
+						},
+						"type": "array"
+					}
+				},
+				"required": [
+					"metadata",
+					"list"
+				],
+				"type": "object"
+			},
+			"SubscribeRequest": {
+				"properties": {
+					"priceId": {
+						"type": "string"
+					},
+					"customerId": {
+						"type": "string"
+					},
+					"accountId": {
+						"type": "string"
+					}
+				},
+				"type": "object"
 			}
 		},
 		"securitySchemes": {}
@@ -392,15 +463,7 @@
 					"content": {
 						"application/json": {
 							"schema": {
-								"properties": {
-									"list": {
-										"items": {
-											"type": "string"
-										},
-										"type": "array"
-									}
-								},
-								"type": "object"
+								"$ref": "#/components/schemas/BookListRequest"
 							}
 						}
 					}
@@ -435,6 +498,67 @@
 						}
 					}
 				]
+			}
+		},
+		"/api/by-books": {
+			"post": {
+				"operationId": "CreateCheckoutSession",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/ByBookResponse"
+								}
+							}
+						}
+					}
+				},
+				"description": "Create Checkout Session",
+				"summary": "Create Checkout Session",
+				"tags": [
+					"Sample Api"
+				],
+				"security": [],
+				"parameters": [],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/ByBookRequest"
+							}
+						}
+					}
+				}
+			}
+		},
+		"/api/subscribe": {
+			"post": {
+				"operationId": "Subscribe",
+				"responses": {
+					"204": {
+						"description": "No content"
+					}
+				},
+				"description": "Subscribe",
+				"summary": "Subscribe",
+				"tags": [
+					"Sample Api"
+				],
+				"security": [],
+				"parameters": [],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/SubscribeRequest"
+							}
+						}
+					}
+				}
 			}
 		}
 	},
