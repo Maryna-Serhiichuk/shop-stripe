@@ -1,5 +1,4 @@
 import express, { Response } from 'express'
-import { client } from './integrations/client'
 import { stripeKey, url } from './connect'
 import { ObjectId } from 'mongodb'
 import mongoose from 'mongoose'
@@ -75,9 +74,15 @@ app.route('/registration')
 
 app.route('/books')
 	.get(async (req: RequestWithParams<QueryBook>, res: Response<QueryBook[]>)  => {
-		const query = req.query?.search ?? ''
-		const sort = req.query?.sort ?? ''
-		const books: QueryBook[] = await Book.find({$or: [{name: {$regex: query}}, {author: {$regex: query}}, {author: {$regex: query}}, {genres: {$regex: query}}, {description: {$regex: query}}]} )
+		const query: string = (req.query?.search ?? '') as string
+		const sort: string = (req.query?.sort ?? '') as string
+
+		const instance = new BookClass()
+		const books: QueryBook[] = await instance.getBooks({ 
+			search: query,
+			sort: sort
+		})
+
 		res.json(books)
 	})
 	.post(urlencodedParser, async (req: RequestWithBody<CreateBook>, res: Response<QueryBook>) => {
@@ -143,10 +148,15 @@ app.route('/books-list')
 	.post(urlencodedParser, async (req: RequestWithBody<BookListRequest>, res: Response<QueryBook[] | undefined>) => {
 		const { list } = req.body
 
+		if(list && list?.length) return res.sendStatus(HTTP_STATUSES.BAD_REQUEST_400);
+
+		const instance = new BookClass()
+
 		try{
-			const books: QueryBook[] | null = await Book.find({ _id: { $in: list } })
+			const books: QueryBook[] | null = await instance.getBookList(list)
 			res.json(books)
 		} catch (err) {
+			console.log(err)
 			res.json(undefined)
 		}
 	})

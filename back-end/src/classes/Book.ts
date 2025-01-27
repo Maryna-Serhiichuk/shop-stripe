@@ -1,14 +1,20 @@
-import { stripe } from "../integrations/stripe";
 import { client } from "../integrations/client";
 import { Book as DBBook } from "../models/book";
 import { CreateBook, QueryBook, UpdateBook } from "../types/Book";
-import { ObjectId, UpdateResult } from 'mongodb'
+import { ObjectId, UpdateResult } from 'mongodb';
 import { Stripe } from "./Stripe";
+import { BookListRequest } from "../types/queryTypes";
 
 export class Book {
     private book: CreateBook | undefined
     private dbBook: any
     private paymentBook: any
+
+    private stripeService: Stripe
+
+    constructor() {
+        this.stripeService = new Stripe()
+    }
 
     public async update(values: { id: string, data: UpdateBook }): Promise<any> {
         const result: UpdateResult = await this.updateInDataBase(values)
@@ -25,25 +31,12 @@ export class Book {
         }
     }
 
-    // TODO: need to split
     private async updateInPaymentSystem(stripeId: string, value: ({ name?: string, price?: number })) {
         if (value?.name) {
-            await stripe.products.update(stripeId, {name: value?.name})
+            await this.stripeService.updateBookName({ id: stripeId, name: value?.name })
         }
         if (value?.price) {
-            const newPrice = await stripe.prices.create({
-                unit_amount: Math.round(value?.price * 100),
-                currency: 'usd',
-                product: stripeId
-            })
-
-            const product = await stripe.products.update(stripeId, {
-                default_price: newPrice.id
-            })
-
-            if(product.default_price !== newPrice.id) {
-                throw new Error("Price hasn't updated")
-            }
+            await this.stripeService.updateBookPrice({ id: stripeId, price: value?.price })
         }
     }
 
@@ -106,10 +99,11 @@ export class Book {
 
     private async addMatadataToPaymentSystemObject() {
         try {
-            this.paymentBook = await stripe.products.update(
-                this.paymentBook.id,
-                {metadata: {product_id: this.dbBook.id}}
-            )
+            this.paymentBook = await this.stripeService.attachDbProductIdToMetadata({
+                id: this.paymentBook.id,
+                dbProductId: this.dbBook.id
+            })
+
         } catch (e) {
             if (e instanceof Error) {
                 throw new Error(e.message)
@@ -121,14 +115,13 @@ export class Book {
 
     private async createToPaymentSystem() {
         try {
-            if(! this.book)throw new Error("Book props isn't visible")
-            this.paymentBook = await stripe.products.create({
+            if(!this.book)throw new Error("Book props isn't visible")
+
+            this.paymentBook = await this.stripeService.createBookProduct({ 
                 name: this.book.name,
-                default_price_data: {
-                    currency: 'usd',
-                    unit_amount: Math.round((this.book.price ?? 0) * 100)
-                },
+                price: this.book.price
             })
+
         } catch (e) {
             if (e instanceof Error) {
                 throw new Error(e.message)
@@ -136,5 +129,19 @@ export class Book {
 
             throw new Error('An unknown error occurred')
         }
+    }
+
+    public async getBookList(idsList: BookListRequest['list']): Promise<QueryBook[]> {
+        return await DBBook.find({ _id: { $in: idsList } })
+    }
+
+    public async getBooks({ search, sort }: { search?: string, sort?: string }): Promise<QueryBook[]> {
+        return await DBBook.find({ $or: [
+            { name: { $regex: search } }, 
+            { author: { $regex: search } }, 
+            { author: { $regex: search }}, 
+            { genres: { $regex: search } }, 
+            { description: { $regex: search } }
+        ]} )
     }
 }
