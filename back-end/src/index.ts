@@ -4,7 +4,6 @@ import { ObjectId } from 'mongodb'
 import mongoose from 'mongoose'
 import { RequestWithBody, RequestWithParams, RequestWithParamsAndBody } from "./types/requestTypes";
 import { CreateBook, QueryBook, UpdateBook } from "./types/Book";
-import { Book } from './models/book'
 import { Customer } from "./models/customer";
 import cors from 'cors'
 import bcrypt from 'bcryptjs'
@@ -185,9 +184,14 @@ app.route('/by-books')
 	.post(urlencodedParser, async (req: RequestWithBody<ByBookRequest>, res: Response<ByBookResponse>) => {
 		const { list, metadata } = req.body
 		const listIds = list.map(it => it.id)
-		const books: QueryBook[] | null = await Book.find({ _id: { $in: listIds } })
-		const booksWithQuantity = books?.map(it => ({_id: it._id, stripeId: it.stripeId, quantity: list.find(item => item.id === String(it._id))?.numbers}))
-		const stripeId: string[] = booksWithQuantity.map(it => it.stripeId)
+
+		const instance = new BookClass()
+		const books: QueryBook[] | null = await instance.getBookList(listIds)
+
+		if(!books?.length)res.sendStatus(HTTP_STATUSES.BAD_REQUEST_400)
+
+		const booksWithQuantity = books?.map(it => ({_id: it._id, stripeId: it.stripeId, quantity: list.find(item => item.id === String(it._id))?.numbers})) ?? []
+		const stripeId: string[] = booksWithQuantity?.map(it => it.stripeId)
 		const products = await stripe.products.list({ids: stripeId})
 		const productsWithQuantity: {price:number, quantity:number}[] = products.data.map((it: any) => ({price: it.default_price, quantity: booksWithQuantity.find(item => String(it.id) === String(item.stripeId))?.quantity}))
 
