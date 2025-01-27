@@ -1,4 +1,4 @@
-import { client } from "./client"
+import { client } from "./integrations/client"
 import {Role} from "./models/role";
 
 const start = async () => {

@@ -1,5 +1,5 @@
 import express, { Response } from 'express'
-import { client } from './client'
+import { client } from './integrations/client'
 import { stripeKey, url } from './connect'
 import { ObjectId } from 'mongodb'
 import mongoose from 'mongoose'
@@ -113,63 +113,26 @@ app.route('/book/:id')
 	})
 	.delete(async (req: RequestWithParams<{id: string}>, res: Response<QueryBook>) => {
 		const id = req.params.id
-		await client.connect()
-		const books = await client.db().collection('books')
-		await books.deleteOne({_id: new ObjectId(id)}) // const book: QueryBook =
+		const instance = new BookClass()
+		await instance.deleteById(id)
 		res.sendStatus(HTTP_STATUSES.OK_200)
 	})
 	.put(urlencodedParser, async (req: RequestWithParamsAndBody<{id: string}, UpdateBook>, res: Response<QueryBook>) => {
 		const id = req.params.id
 		const { author, year, name, price, genres, description } = req.body
 		if(author || year || name || price || genres || description){
-			const result = await Book.updateOne(
-				{_id: new ObjectId(id)},
-				{$set: {...req.body}}
-			)
-			if(result.acknowledged){
-				const book: QueryBook | null = await Book.findById(id)
-				const stripeId = book?.stripeId
 
-				if(name) {
-					try {
-						const product = await stripe.products.update(stripeId, {name: name,})
+			const instance = new BookClass()
 
-						res.sendStatus(HTTP_STATUSES.OK_200)
-						return
-					} catch (err) {
-						res.sendStatus(HTTP_STATUSES.SERVER_500)
-						return
-					}
-				} else if (price) {
-					try {
-						const newPrice = await stripe.prices.create({
-							unit_amount: Math.round(price * 100),
-							currency: 'usd',
-							product: stripeId
-						})
-
-						const product = await stripe.products.update(stripeId, {
-							default_price: newPrice.id
-						})
-
-						if(product.default_price !== newPrice.id) {
-							res.sendStatus(HTTP_STATUSES.SERVER_500)
-							return
-						}
-
-						res.sendStatus(HTTP_STATUSES.OK_200)
-						return
-					} catch (err) {
-						res.sendStatus(HTTP_STATUSES.SERVER_500)
-						return
-					}
-				} else {
-					res.sendStatus(HTTP_STATUSES.OK_200)
-					return
+			try {
+				const result = await instance.update({ id, data: req.body })
+			} catch (e) {
+				if (e instanceof Error) {
+					throw new Error(e.message)
 				}
+	
+				throw new Error('An unknown error occurred')
 			}
-			res.sendStatus(HTTP_STATUSES.SERVER_500)
-			return
 		}
 
 		res.sendStatus(HTTP_STATUSES.BAD_REQUEST_400)
