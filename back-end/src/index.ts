@@ -1,5 +1,5 @@
 import express, { Response } from 'express'
-import { client } from './client'
+import { client } from './integrations/client'
 import { stripeKey, url } from './connect'
 import { ObjectId } from 'mongodb'
 import mongoose from 'mongoose'
@@ -15,6 +15,8 @@ import { CreateCustomer, QueryCustomer } from "./types/Customer";
 import swaggerUi from 'swagger-ui-express'
 import swaggerDocument from './swagger/swagger.json'
 import { SubscribeRequest, ByBookRequest, BookListRequest, ByBookResponse } from './types/queryTypes'
+import { User } from './classes/User'
+import { Book as BookClass } from './classes/Book'
 
 const stripe = require('stripe')(stripeKey)
 
@@ -54,28 +56,15 @@ app.route('/me')
 app.route('/registration')
 	.post(async (req: RequestWithBody<CreateCustomer>,res: Response<QueryCustomer>) => {
 		try {
-			const { email, password, name, surname, phone } = req.body
-			const candidate = await Customer.findOne({email})
-			if(candidate) {
+			// const { email, password, name, surname, phone } = req.body
+
+			const user = new User(req.body)
+
+			if(await user.isEmailExist()) {
 				return res.sendStatus(HTTP_STATUSES.BAD_REQUEST_400) // .json({message: 'Customer already exists'})
 			}
-			const hashPassword = bcrypt.hashSync(password, 7)
-			const userRole = await Role.findOne({value:'CUSTOMER'})
-			const customer = new Customer({name, surname, phone, email, role: userRole?.value, password: hashPassword})
-			await customer.save()
 
-			const customerStripe = await stripe.customers.create({
-				email, phone,
-				name: name + surname
-			})
-
-			const result = await Customer.updateOne(
-				{_id: new ObjectId(customer.id)},
-				{$set: {
-						customerStripeId: customerStripe.id
-					}}
-			)
-			// result.acknowledged
+			await user.createCustomer(0)
 
 			return res.sendStatus(HTTP_STATUSES.CREATED_201) // .json({message: 'Customer is registered'})
 		} catch (err) {
@@ -98,97 +87,52 @@ app.route('/books')
 			return
 		}
 
-		const product = await stripe.products.create({
-			name: name,
-			default_price_data: {
-				currency: 'usd',
-				unit_amount: Math.round(price * 100)
-			},
-		})
+		const book = new BookClass()
 
-		const book = new Book({ name, year, author, description, genres, price, stripeId: product.id })
-		book.save()
-			.then(async _ => {
-				const productDBid = await stripe.products.update(
-					product.id,
-					{metadata: {product_id: book.id}}
-				)
-				res.sendStatus(HTTP_STATUSES.CREATED_201)
-			})
-			.catch(err => res.sendStatus(HTTP_STATUSES.SERVER_500))
-
-
+		try {
+			const createResult = await book.create(req.body)
+			res.sendStatus(HTTP_STATUSES.CREATED_201)
+		} catch (e) {
+			console.log(e)
+			res.sendStatus(HTTP_STATUSES.SERVER_500)
+		}
 	})
 
 app.route('/book/:id')
 	.get(async (req: RequestWithParams<{id: string}>, res: Response<QueryBook>) => {
 		const id = req.params.id
-		const instance: QueryBook | null = await Book.findById(id)
-		if(instance) {
-			res.json(instance)
+		if(!id) res.sendStatus(HTTP_STATUSES.BAD_REQUEST_400)
+
+		const instance = new BookClass()
+		const book = await instance.findById(id)
+		if(book) {
+			res.json(book)
 			return
 		}
-		res.sendStatus(HTTP_STATUSES.BAD_REQUEST_400)
+		res.sendStatus(HTTP_STATUSES.NOT_FOUND_404)
 	})
 	.delete(async (req: RequestWithParams<{id: string}>, res: Response<QueryBook>) => {
 		const id = req.params.id
-		await client.connect()
-		const books = await client.db().collection('books')
-		await books.deleteOne({_id: new ObjectId(id)}) // const book: QueryBook =
+		const instance = new BookClass()
+		await instance.deleteById(id)
 		res.sendStatus(HTTP_STATUSES.OK_200)
 	})
 	.put(urlencodedParser, async (req: RequestWithParamsAndBody<{id: string}, UpdateBook>, res: Response<QueryBook>) => {
 		const id = req.params.id
 		const { author, year, name, price, genres, description } = req.body
 		if(author || year || name || price || genres || description){
-			const result = await Book.updateOne(
-				{_id: new ObjectId(id)},
-				{$set: {...req.body}}
-			)
-			if(result.acknowledged){
-				const book: QueryBook | null = await Book.findById(id)
-				const stripeId = book?.stripeId
 
-				if(name) {
-					try {
-						const product = await stripe.products.update(stripeId, {name: name,})
+			const instance = new BookClass()
 
-						res.sendStatus(HTTP_STATUSES.OK_200)
-						return
-					} catch (err) {
-						res.sendStatus(HTTP_STATUSES.SERVER_500)
-						return
-					}
-				} else if (price) {
-					try {
-						const newPrice = await stripe.prices.create({
-							unit_amount: Math.round(price * 100),
-							currency: 'usd',
-							product: stripeId
-						})
-
-						const product = await stripe.products.update(stripeId, {
-							default_price: newPrice.id
-						})
-
-						if(product.default_price !== newPrice.id) {
-							res.sendStatus(HTTP_STATUSES.SERVER_500)
-							return
-						}
-
-						res.sendStatus(HTTP_STATUSES.OK_200)
-						return
-					} catch (err) {
-						res.sendStatus(HTTP_STATUSES.SERVER_500)
-						return
-					}
-				} else {
-					res.sendStatus(HTTP_STATUSES.OK_200)
-					return
+			try {
+				const result = await instance.update({ id, data: req.body })
+			} catch (e) {
+				if (e instanceof Error) {
+					throw new Error(e.message)
 				}
+	
+				throw new Error('An unknown error occurred')
 			}
-			res.sendStatus(HTTP_STATUSES.SERVER_500)
-			return
 		}
 
 		res.sendStatus(HTTP_STATUSES.BAD_REQUEST_400)

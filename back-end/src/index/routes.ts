@@ -4,7 +4,7 @@
 import type { TsoaRoute } from '@tsoa/runtime';
 import {  fetchMiddlewares, ExpressTemplateService } from '@tsoa/runtime';
 // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-import { SampleController } from './../controllers/tsoa';
+import { ApiController } from './../controllers/tsoa';
 import type { Request as ExRequest, Response as ExResponse, RequestHandler, Router } from 'express';
 
 
@@ -69,22 +69,22 @@ export function RegisterRoutes(app: Router) {
 
 
     
-        const argsSampleController_register: Record<string, TsoaRoute.ParameterSchema> = {
+        const argsApiController_register: Record<string, TsoaRoute.ParameterSchema> = {
                 requestBody: {"in":"body","name":"requestBody","required":true,"ref":"CreateCustomer"},
         };
         app.post('/api/registration',
-            ...(fetchMiddlewares<RequestHandler>(SampleController)),
-            ...(fetchMiddlewares<RequestHandler>(SampleController.prototype.register)),
+            ...(fetchMiddlewares<RequestHandler>(ApiController)),
+            ...(fetchMiddlewares<RequestHandler>(ApiController.prototype.register)),
 
-            async function SampleController_register(request: ExRequest, response: ExResponse, next: any) {
+            async function ApiController_register(request: ExRequest, response: ExResponse, next: any) {
 
             // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
 
             let validatedArgs: any[] = [];
             try {
-                validatedArgs = templateService.getValidatedArgs({ args: argsSampleController_register, request, response });
+                validatedArgs = templateService.getValidatedArgs({ args: argsApiController_register, request, response });
 
-                const controller = new SampleController();
+                const controller = new ApiController();
 
               await templateService.apiHandler({
                 methodName: 'register',
@@ -99,22 +99,22 @@ export function RegisterRoutes(app: Router) {
             }
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-        const argsSampleController_getBooks: Record<string, TsoaRoute.ParameterSchema> = {
+        const argsApiController_getBooks: Record<string, TsoaRoute.ParameterSchema> = {
                 search: {"in":"query","name":"search","dataType":"string"},
         };
         app.get('/api/books',
-            ...(fetchMiddlewares<RequestHandler>(SampleController)),
-            ...(fetchMiddlewares<RequestHandler>(SampleController.prototype.getBooks)),
+            ...(fetchMiddlewares<RequestHandler>(ApiController)),
+            ...(fetchMiddlewares<RequestHandler>(ApiController.prototype.getBooks)),
 
-            async function SampleController_getBooks(request: ExRequest, response: ExResponse, next: any) {
+            async function ApiController_getBooks(request: ExRequest, response: ExResponse, next: any) {
 
             // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
 
             let validatedArgs: any[] = [];
             try {
-                validatedArgs = templateService.getValidatedArgs({ args: argsSampleController_getBooks, request, response });
+                validatedArgs = templateService.getValidatedArgs({ args: argsApiController_getBooks, request, response });
 
-                const controller = new SampleController();
+                const controller = new ApiController();
 
               await templateService.apiHandler({
                 methodName: 'getBooks',
@@ -129,22 +129,22 @@ export function RegisterRoutes(app: Router) {
             }
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-        const argsSampleController_createBook: Record<string, TsoaRoute.ParameterSchema> = {
+        const argsApiController_createBook: Record<string, TsoaRoute.ParameterSchema> = {
                 requestBody: {"in":"body","name":"requestBody","required":true,"ref":"CreateBook"},
         };
         app.post('/api/books',
-            ...(fetchMiddlewares<RequestHandler>(SampleController)),
-            ...(fetchMiddlewares<RequestHandler>(SampleController.prototype.createBook)),
+            ...(fetchMiddlewares<RequestHandler>(ApiController)),
+            ...(fetchMiddlewares<RequestHandler>(ApiController.prototype.createBook)),
 
-            async function SampleController_createBook(request: ExRequest, response: ExResponse, next: any) {
+            async function ApiController_createBook(request: ExRequest, response: ExResponse, next: any) {
 
             // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
 
             let validatedArgs: any[] = [];
             try {
-                validatedArgs = templateService.getValidatedArgs({ args: argsSampleController_createBook, request, response });
+                validatedArgs = templateService.getValidatedArgs({ args: argsApiController_createBook, request, response });
 
-                const controller = new SampleController();
+                const controller = new ApiController();
 
               await templateService.apiHandler({
                 methodName: 'createBook',
@@ -159,22 +159,22 @@ export function RegisterRoutes(app: Router) {
             }
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-        const argsSampleController_getBook: Record<string, TsoaRoute.ParameterSchema> = {
+        const argsApiController_getBook: Record<string, TsoaRoute.ParameterSchema> = {
                 id: {"in":"path","name":"id","required":true,"dataType":"string"},
         };
         app.get('/api/book/:id',
-            ...(fetchMiddlewares<RequestHandler>(SampleController)),
-            ...(fetchMiddlewares<RequestHandler>(SampleController.prototype.getBook)),
+            ...(fetchMiddlewares<RequestHandler>(ApiController)),
+            ...(fetchMiddlewares<RequestHandler>(ApiController.prototype.getBook)),
 
-            async function SampleController_getBook(request: ExRequest, response: ExResponse, next: any) {
+            async function ApiController_getBook(request: ExRequest, response: ExResponse, next: any) {
 
             // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
 
             let validatedArgs: any[] = [];
             try {
-                validatedArgs = templateService.getValidatedArgs({ args: argsSampleController_getBook, request, response });
+                validatedArgs = templateService.getValidatedArgs({ args: argsApiController_getBook, request, response });
 
-                const controller = new SampleController();
+                const controller = new ApiController();
 
               await templateService.apiHandler({
                 methodName: 'getBook',
@@ -189,22 +189,22 @@ export function RegisterRoutes(app: Router) {
             }
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-        const argsSampleController_deleteBook: Record<string, TsoaRoute.ParameterSchema> = {
+        const argsApiController_deleteBook: Record<string, TsoaRoute.ParameterSchema> = {
                 id: {"in":"path","name":"id","required":true,"dataType":"string"},
         };
         app.delete('/api/book/:id',
-            ...(fetchMiddlewares<RequestHandler>(SampleController)),
-            ...(fetchMiddlewares<RequestHandler>(SampleController.prototype.deleteBook)),
+            ...(fetchMiddlewares<RequestHandler>(ApiController)),
+            ...(fetchMiddlewares<RequestHandler>(ApiController.prototype.deleteBook)),
 
-            async function SampleController_deleteBook(request: ExRequest, response: ExResponse, next: any) {
+            async function ApiController_deleteBook(request: ExRequest, response: ExResponse, next: any) {
 
             // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
 
             let validatedArgs: any[] = [];
             try {
-                validatedArgs = templateService.getValidatedArgs({ args: argsSampleController_deleteBook, request, response });
+                validatedArgs = templateService.getValidatedArgs({ args: argsApiController_deleteBook, request, response });
 
-                const controller = new SampleController();
+                const controller = new ApiController();
 
               await templateService.apiHandler({
                 methodName: 'deleteBook',
@@ -219,23 +219,23 @@ export function RegisterRoutes(app: Router) {
             }
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-        const argsSampleController_updateBook: Record<string, TsoaRoute.ParameterSchema> = {
+        const argsApiController_updateBook: Record<string, TsoaRoute.ParameterSchema> = {
                 id: {"in":"path","name":"id","required":true,"dataType":"string"},
                 requestBody: {"in":"body","name":"requestBody","required":true,"ref":"UpdateBook"},
         };
         app.put('/api/book/:id',
-            ...(fetchMiddlewares<RequestHandler>(SampleController)),
-            ...(fetchMiddlewares<RequestHandler>(SampleController.prototype.updateBook)),
+            ...(fetchMiddlewares<RequestHandler>(ApiController)),
+            ...(fetchMiddlewares<RequestHandler>(ApiController.prototype.updateBook)),
 
-            async function SampleController_updateBook(request: ExRequest, response: ExResponse, next: any) {
+            async function ApiController_updateBook(request: ExRequest, response: ExResponse, next: any) {
 
             // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
 
             let validatedArgs: any[] = [];
             try {
-                validatedArgs = templateService.getValidatedArgs({ args: argsSampleController_updateBook, request, response });
+                validatedArgs = templateService.getValidatedArgs({ args: argsApiController_updateBook, request, response });
 
-                const controller = new SampleController();
+                const controller = new ApiController();
 
               await templateService.apiHandler({
                 methodName: 'updateBook',
@@ -250,22 +250,22 @@ export function RegisterRoutes(app: Router) {
             }
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-        const argsSampleController_getBooksByIds: Record<string, TsoaRoute.ParameterSchema> = {
+        const argsApiController_getBooksByIds: Record<string, TsoaRoute.ParameterSchema> = {
                 requestBody: {"in":"body","name":"requestBody","required":true,"ref":"BookListRequest"},
         };
         app.post('/api/books-list',
-            ...(fetchMiddlewares<RequestHandler>(SampleController)),
-            ...(fetchMiddlewares<RequestHandler>(SampleController.prototype.getBooksByIds)),
+            ...(fetchMiddlewares<RequestHandler>(ApiController)),
+            ...(fetchMiddlewares<RequestHandler>(ApiController.prototype.getBooksByIds)),
 
-            async function SampleController_getBooksByIds(request: ExRequest, response: ExResponse, next: any) {
+            async function ApiController_getBooksByIds(request: ExRequest, response: ExResponse, next: any) {
 
             // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
 
             let validatedArgs: any[] = [];
             try {
-                validatedArgs = templateService.getValidatedArgs({ args: argsSampleController_getBooksByIds, request, response });
+                validatedArgs = templateService.getValidatedArgs({ args: argsApiController_getBooksByIds, request, response });
 
-                const controller = new SampleController();
+                const controller = new ApiController();
 
               await templateService.apiHandler({
                 methodName: 'getBooksByIds',
@@ -280,22 +280,22 @@ export function RegisterRoutes(app: Router) {
             }
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-        const argsSampleController_getWishList: Record<string, TsoaRoute.ParameterSchema> = {
+        const argsApiController_getWishList: Record<string, TsoaRoute.ParameterSchema> = {
                 id: {"in":"path","name":"id","required":true,"dataType":"string"},
         };
         app.get('/api/wish-list/:id',
-            ...(fetchMiddlewares<RequestHandler>(SampleController)),
-            ...(fetchMiddlewares<RequestHandler>(SampleController.prototype.getWishList)),
+            ...(fetchMiddlewares<RequestHandler>(ApiController)),
+            ...(fetchMiddlewares<RequestHandler>(ApiController.prototype.getWishList)),
 
-            async function SampleController_getWishList(request: ExRequest, response: ExResponse, next: any) {
+            async function ApiController_getWishList(request: ExRequest, response: ExResponse, next: any) {
 
             // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
 
             let validatedArgs: any[] = [];
             try {
-                validatedArgs = templateService.getValidatedArgs({ args: argsSampleController_getWishList, request, response });
+                validatedArgs = templateService.getValidatedArgs({ args: argsApiController_getWishList, request, response });
 
-                const controller = new SampleController();
+                const controller = new ApiController();
 
               await templateService.apiHandler({
                 methodName: 'getWishList',
@@ -310,22 +310,22 @@ export function RegisterRoutes(app: Router) {
             }
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-        const argsSampleController_createCheckoutSession: Record<string, TsoaRoute.ParameterSchema> = {
+        const argsApiController_createCheckoutSession: Record<string, TsoaRoute.ParameterSchema> = {
                 requestBody: {"in":"body","name":"requestBody","required":true,"ref":"ByBookRequest"},
         };
         app.post('/api/by-books',
-            ...(fetchMiddlewares<RequestHandler>(SampleController)),
-            ...(fetchMiddlewares<RequestHandler>(SampleController.prototype.createCheckoutSession)),
+            ...(fetchMiddlewares<RequestHandler>(ApiController)),
+            ...(fetchMiddlewares<RequestHandler>(ApiController.prototype.createCheckoutSession)),
 
-            async function SampleController_createCheckoutSession(request: ExRequest, response: ExResponse, next: any) {
+            async function ApiController_createCheckoutSession(request: ExRequest, response: ExResponse, next: any) {
 
             // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
 
             let validatedArgs: any[] = [];
             try {
-                validatedArgs = templateService.getValidatedArgs({ args: argsSampleController_createCheckoutSession, request, response });
+                validatedArgs = templateService.getValidatedArgs({ args: argsApiController_createCheckoutSession, request, response });
 
-                const controller = new SampleController();
+                const controller = new ApiController();
 
               await templateService.apiHandler({
                 methodName: 'createCheckoutSession',
@@ -340,22 +340,22 @@ export function RegisterRoutes(app: Router) {
             }
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-        const argsSampleController_subscribe: Record<string, TsoaRoute.ParameterSchema> = {
+        const argsApiController_subscribe: Record<string, TsoaRoute.ParameterSchema> = {
                 requestBody: {"in":"body","name":"requestBody","required":true,"ref":"SubscribeRequest"},
         };
         app.post('/api/subscribe',
-            ...(fetchMiddlewares<RequestHandler>(SampleController)),
-            ...(fetchMiddlewares<RequestHandler>(SampleController.prototype.subscribe)),
+            ...(fetchMiddlewares<RequestHandler>(ApiController)),
+            ...(fetchMiddlewares<RequestHandler>(ApiController.prototype.subscribe)),
 
-            async function SampleController_subscribe(request: ExRequest, response: ExResponse, next: any) {
+            async function ApiController_subscribe(request: ExRequest, response: ExResponse, next: any) {
 
             // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
 
             let validatedArgs: any[] = [];
             try {
-                validatedArgs = templateService.getValidatedArgs({ args: argsSampleController_subscribe, request, response });
+                validatedArgs = templateService.getValidatedArgs({ args: argsApiController_subscribe, request, response });
 
-                const controller = new SampleController();
+                const controller = new ApiController();
 
               await templateService.apiHandler({
                 methodName: 'subscribe',

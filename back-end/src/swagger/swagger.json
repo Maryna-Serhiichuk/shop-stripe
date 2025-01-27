@@ -234,7 +234,7 @@
 				"description": "Registration",
 				"summary": "Registration",
 				"tags": [
-					"Sample Api"
+					"Api"
 				],
 				"security": [],
 				"parameters": [],
@@ -271,7 +271,7 @@
 				"description": "Get books",
 				"summary": "Get books",
 				"tags": [
-					"Sample Api"
+					"Api"
 				],
 				"security": [],
 				"parameters": [
@@ -308,7 +308,7 @@
 				"description": "Create Book",
 				"summary": "Create Book",
 				"tags": [
-					"Sample Api"
+					"Api"
 				],
 				"security": [],
 				"parameters": [],
@@ -345,7 +345,7 @@
 				"description": "Get book",
 				"summary": "Get book",
 				"tags": [
-					"Sample Api"
+					"Api"
 				],
 				"security": [],
 				"parameters": [
@@ -370,7 +370,7 @@
 				"description": "Delete book",
 				"summary": "Delete book",
 				"tags": [
-					"Sample Api"
+					"Api"
 				],
 				"security": [],
 				"parameters": [
@@ -408,7 +408,7 @@
 				"description": "Update Book",
 				"summary": "Update Book",
 				"tags": [
-					"Sample Api"
+					"Api"
 				],
 				"security": [],
 				"parameters": [
@@ -454,7 +454,7 @@
 				"description": "In the parameters array you need to specify the book IDs",
 				"summary": "Get Books from Customer's List by IDs",
 				"tags": [
-					"Sample Api"
+					"Api"
 				],
 				"security": [],
 				"parameters": [],
@@ -484,7 +484,7 @@
 				"description": "Add Book to Customer's List",
 				"summary": "Add Book to Customer's List",
 				"tags": [
-					"Sample Api"
+					"Api"
 				],
 				"security": [],
 				"parameters": [
@@ -518,7 +518,7 @@
 				"description": "Create Checkout Session",
 				"summary": "Create Checkout Session",
 				"tags": [
-					"Sample Api"
+					"Api"
 				],
 				"security": [],
 				"parameters": [],
@@ -545,7 +545,7 @@
 				"description": "Subscribe",
 				"summary": "Subscribe",
 				"tags": [
-					"Sample Api"
+					"Api"
 				],
 				"security": [],
 				"parameters": [],
